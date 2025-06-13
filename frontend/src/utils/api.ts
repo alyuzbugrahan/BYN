@@ -60,7 +60,7 @@ const getAPIBaseURL = (): string => {
   }
   
   // Fallback to hardcoded URL for development
-  const fallbackUrl = 'http://3.71.10.131:8000/api';
+  const fallbackUrl = 'http://3.65.227.81:8000/api';
   console.log('🌐 Using fallback API URL:', fallbackUrl);
   return fallbackUrl;
 };

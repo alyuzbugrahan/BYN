@@ -2,7 +2,7 @@
 echo Starting BYN Frontend with Remote API Configuration...
 echo.
 echo API Configuration:
-echo - Remote Server: http://3.71.10.131/api
+echo - Remote Server: http://3.65.227.81/api
 echo - Debug Mode: Enabled
 echo.
 echo Make sure to:

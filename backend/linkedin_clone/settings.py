@@ -214,11 +214,11 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# CORS Settings - HTTP compatible
-# For development and production without SSL
+# CORS Settings - Maximum flexibility for all platforms
+# Allow all origins for development and maximum compatibility
 CORS_ALLOW_ALL_ORIGINS = True
 
-# Additional CORS settings for HTTP
+# Additional CORS settings for maximum compatibility
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -229,6 +229,8 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'cache-control',
+    'pragma',
 ]
 
 CORS_ALLOW_METHODS = [
@@ -238,18 +240,66 @@ CORS_ALLOW_METHODS = [
     'PATCH',
     'POST',
     'PUT',
+    'HEAD',
 ]
 
-# Specific origins (use when CORS_ALLOW_ALL_ORIGINS is False)
+# Specific origins for production (comprehensive list)
 CORS_ALLOWED_ORIGINS = [
+    # Local development (all variations)
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://3.71.10.131:3000",  # Remote frontend on Lightsail
-    "https://byn-eight.vercel.app",  # Your actual Vercel domain
-    "http://byn-eight.vercel.app",  # HTTP version
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    
+    # Current server (all variations)
+    "http://3.65.227.81:3000",
+    "http://3.65.227.81:8000",
+    "https://3.65.227.81:3000",
+    "https://3.65.227.81:8000",
+    
+    # Vercel deployments (all variations)
+    "https://byn-eight.vercel.app",
+    "http://byn-eight.vercel.app",
+    "https://byn-eight-git-main.vercel.app",
+    "http://byn-eight-git-main.vercel.app",
+    
+    # Production-ready for any domain
+    "https://byn-eight.vercel.app",
+    "http://byn-eight.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Wildcard patterns for maximum flexibility
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https?://.*\.vercel\.app$",      # Tüm Vercel domains (HTTP/HTTPS)
+    r"^https?://localhost:\d+$",        # Localhost any port
+    r"^https?://127\.0\.0\.1:\d+$",     # 127.0.0.1 any port
+    r"^https?://3\.65\.227\.81:\d+$",   # Current server any port
+    r"^https?://.*\.netlify\.app$",     # Netlify domains
+    r"^https?://.*\.github\.io$",       # GitHub Pages
+]
+
+# Security Settings - Flexible for HTTP and HTTPS
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# HTTP/HTTPS flexible settings (no forced HTTPS)
+SECURE_SSL_REDIRECT = False  # Allow HTTP
+SECURE_HSTS_SECONDS = 0  # Disable HSTS for HTTP compatibility
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+
+# Cookie settings - work with both HTTP and HTTPS
+CSRF_COOKIE_SECURE = False  # Allow HTTP
+SESSION_COOKIE_SECURE = False  # Allow HTTP
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
+
+# Disable strict transport security for HTTP compatibility
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+SECURE_REFERRER_POLICY = "same-origin"
 
 # API Documentation
 SPECTACULAR_SETTINGS = {
@@ -266,21 +316,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY', '')
-
-# Security Settings (HTTP compatible)
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'SAMEORIGIN'  # Changed from DENY to SAMEORIGIN for better compatibility
-
-# Disable CSRF for API-only usage (if needed)
-# CSRF_COOKIE_SECURE = False  # HTTP compatible
-# SESSION_COOKIE_SECURE = False  # HTTP compatible
-
-# HTTP Settings for development/production without SSL
-SECURE_SSL_REDIRECT = False  # Keep False for HTTP
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Commented out for HTTP
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None  # Disable for HTTP
-SECURE_REFERRER_POLICY = None  # Disable for HTTP
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
