@@ -150,10 +150,10 @@ const LoginPage: React.FC = () => {
         <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
           <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
           <div className="text-sm text-blue-700 space-y-1">
-            <p><strong>Email:</strong> john.doe@example.com</p>
-            <p><strong>Password:</strong> testpass123</p>
+            <p><strong>Working User:</strong> test@example.com / Test1234!</p>
             <p className="text-xs mt-2 text-blue-600">
-              You can also use jane.smith@example.com or mike.wilson@example.com with the same password.
+              <strong>Note:</strong> Sample data (companies, jobs) not loaded on remote server yet.<br/>
+              Backend script 'create_sample_data.py' needs to be run to populate demo content.
             </p>
           </div>
         </div>

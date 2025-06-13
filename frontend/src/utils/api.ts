@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { 
   User, 
   AuthTokens, 
@@ -43,8 +43,20 @@ import {
   TrendingContent
 } from '../types';
 
+// Extend axios config type to include metadata
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+  metadata?: {
+    startTime: number;
+  };
+}
+
 // Get API base URL from environment variables
 const getAPIBaseURL = (): string => {
+  // Temporary fix: Hard-code remote server URL
+  const url = 'http://3.71.10.131:8000/api';
+  console.log('🌐 Using hard-coded API URL:', url);
+  return url;
+  
   // Check if environment variable is set
   if (process.env.REACT_APP_API_BASE_URL) {
     const url = `${process.env.REACT_APP_API_BASE_URL}/api`;
@@ -55,6 +67,91 @@ const getAPIBaseURL = (): string => {
   // Fallback to relative URL (for development with proxy)
   console.log('🌐 Using relative API URL with proxy: /api');
   return '/api';
+};
+
+// Detailed logging utility
+const logRequest = (config: ExtendedAxiosRequestConfig) => {
+  const startTime = Date.now();
+  config.metadata = { startTime };
+  
+  console.group(`🚀 API REQUEST - ${config.method?.toUpperCase()} ${config.url}`);
+  console.log('📍 Full URL:', `${config.baseURL}${config.url}`);
+  console.log('⏰ Timestamp:', new Date().toISOString());
+  console.log('🔧 Method:', config.method?.toUpperCase());
+  console.log('📋 Headers:', JSON.stringify(config.headers, null, 2));
+  
+  if (config.data) {
+    console.log('📦 Request Data:', config.data);
+    console.log('📦 Request Data (JSON):', JSON.stringify(config.data, null, 2));
+  }
+  
+  if (config.params) {
+    console.log('🔗 Query Params:', config.params);
+  }
+  
+  console.log('⚙️ Config:', {
+    timeout: config.timeout,
+    baseURL: config.baseURL,
+    withCredentials: config.withCredentials
+  });
+  console.groupEnd();
+  
+  return config;
+};
+
+const logResponse = (response: AxiosResponse) => {
+  const endTime = Date.now();
+  const extendedConfig = response.config as ExtendedAxiosRequestConfig;
+  const duration = extendedConfig.metadata?.startTime 
+    ? endTime - extendedConfig.metadata.startTime 
+    : 'Unknown';
+  
+  console.group(`✅ API RESPONSE - ${response.config.method?.toUpperCase()} ${response.config.url}`);
+  console.log('📍 Full URL:', `${response.config.baseURL}${response.config.url}`);
+  console.log('⏰ Response Time:', `${duration}ms`);
+  console.log('📊 Status:', `${response.status} ${response.statusText}`);
+  console.log('📋 Response Headers:', JSON.stringify(response.headers, null, 2));
+  console.log('📦 Response Data:', response.data);
+  console.log('📦 Response Data (JSON):', JSON.stringify(response.data, null, 2));
+  console.log('📏 Data Size:', new Blob([JSON.stringify(response.data)]).size + ' bytes');
+  console.groupEnd();
+  
+  return response;
+};
+
+const logError = (error: any) => {
+  const endTime = Date.now();
+  const extendedConfig = error.config as ExtendedAxiosRequestConfig;
+  const duration = extendedConfig?.metadata?.startTime 
+    ? endTime - extendedConfig.metadata.startTime 
+    : 'Unknown';
+  
+  console.group(`❌ API ERROR - ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+  console.log('📍 Full URL:', `${error.config?.baseURL}${error.config?.url}`);
+  console.log('⏰ Error Time:', `${duration}ms`);
+  console.log('📊 Status:', error.response?.status || 'Network Error');
+  console.log('💬 Status Text:', error.response?.statusText || error.message);
+  
+  if (error.response?.headers) {
+    console.log('📋 Response Headers:', JSON.stringify(error.response.headers, null, 2));
+  }
+  
+  if (error.response?.data) {
+    console.log('📦 Error Data:', error.response.data);
+    console.log('📦 Error Data (JSON):', JSON.stringify(error.response.data, null, 2));
+  }
+  
+  console.log('🔧 Error Config:', {
+    timeout: error.config?.timeout,
+    baseURL: error.config?.baseURL,
+    method: error.config?.method,
+    url: error.config?.url
+  });
+  
+  console.log('📚 Full Error Object:', error);
+  console.groupEnd();
+  
+  return Promise.reject(error);
 };
 
 // Create axios instance
@@ -69,70 +166,100 @@ const api: AxiosInstance = axios.create({
 // Token management
 export const tokenManager = {
   getAccessToken: (): string | null => {
-    return localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken');
+    console.log('🔑 Getting access token:', token ? `${token.substring(0, 20)}...` : 'null');
+    return token;
   },
   
   getRefreshToken: (): string | null => {
-    return localStorage.getItem('refreshToken');
+    const token = localStorage.getItem('refreshToken');
+    console.log('🔄 Getting refresh token:', token ? `${token.substring(0, 20)}...` : 'null');
+    return token;
   },
   
   setTokens: (tokens: AuthTokens): void => {
+    console.log('💾 Setting tokens:', {
+      access: tokens.access ? `${tokens.access.substring(0, 20)}...` : 'null',
+      refresh: tokens.refresh ? `${tokens.refresh.substring(0, 20)}...` : 'null'
+    });
     localStorage.setItem('accessToken', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
   },
   
   clearTokens: (): void => {
+    console.log('🗑️ Clearing tokens');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
   },
   
   isAuthenticated: (): boolean => {
-    return !!tokenManager.getAccessToken();
+    const isAuth = !!tokenManager.getAccessToken();
+    console.log('🔐 Is authenticated:', isAuth);
+    return isAuth;
   }
 };
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and logging
 api.interceptors.request.use(
   (config) => {
+    // Add authentication token
     const token = tokenManager.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔑 Added auth token to request');
     }
-    return config;
+    
+    // Log the request
+    return logRequest(config as ExtendedAxiosRequestConfig);
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('❌ Request interceptor error:', error);
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor to handle token refresh
+// Response interceptor to handle token refresh and logging
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log successful response
+    return logResponse(response);
+  },
   async (error) => {
+    // Log error first
+    logError(error);
+    
     const originalRequest = error.config;
     
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      console.log('🔄 401 error detected, attempting token refresh...');
       
       const refreshToken = tokenManager.getRefreshToken();
       if (refreshToken) {
         try {
-          const response = await axios.post('/api/auth/token/refresh/', {
+          console.log('🔄 Attempting to refresh token...');
+          const response = await axios.post(`${getAPIBaseURL()}/auth/token/refresh/`, {
             refresh: refreshToken
           });
           
           const newTokens = response.data;
+          console.log('✅ Token refresh successful');
           tokenManager.setTokens(newTokens);
           
           // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${newTokens.access}`;
+          console.log('🔄 Retrying original request with new token...');
           return api(originalRequest);
         } catch (refreshError) {
           // Refresh failed, redirect to login
+          console.error('❌ Token refresh failed:', refreshError);
           tokenManager.clearTokens();
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
       } else {
         // No refresh token, redirect to login
+        console.log('❌ No refresh token available, redirecting to login');
         window.location.href = '/login';
       }
     }
@@ -164,7 +291,7 @@ export const authAPI = {
   },
   
   updateProfile: async (userData: Partial<User>): Promise<User> => {
-    const response: AxiosResponse<User> = await api.put('/auth/profile/', userData);
+    const response: AxiosResponse<User> = await api.put('/users/profile/update/', userData);
     return response.data;
   },
   
@@ -683,8 +810,6 @@ export const connectionsAPI = {
     return response.data;
   }
 };
-
-
 
 // Premium API
 export const premiumAPI = {
