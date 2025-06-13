@@ -214,9 +214,31 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# CORS Settings
-# For development only - allow all origins
+# CORS Settings - HTTP compatible
+# For development and production without SSL
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Additional CORS settings for HTTP
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 # Specific origins (use when CORS_ALLOW_ALL_ORIGINS is False)
 CORS_ALLOWED_ORIGINS = [
@@ -224,7 +246,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://3.71.10.131:3000",  # Remote frontend on Lightsail
     "https://byn-eight.vercel.app",  # Your actual Vercel domain
- 
+    "http://byn-eight.vercel.app",  # HTTP version
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -245,16 +267,20 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY', '')
 
-# Security Settings
+# Security Settings (HTTP compatible)
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # Changed from DENY to SAMEORIGIN for better compatibility
 
-# HTTPS Settings for production
-SECURE_SSL_REDIRECT = False  # Keep False if using HTTP backend
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
-SECURE_REFERRER_POLICY = 'same-origin'
+# Disable CSRF for API-only usage (if needed)
+# CSRF_COOKIE_SECURE = False  # HTTP compatible
+# SESSION_COOKIE_SECURE = False  # HTTP compatible
+
+# HTTP Settings for development/production without SSL
+SECURE_SSL_REDIRECT = False  # Keep False for HTTP
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Commented out for HTTP
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None  # Disable for HTTP
+SECURE_REFERRER_POLICY = None  # Disable for HTTP
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
