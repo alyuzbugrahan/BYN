@@ -18,6 +18,16 @@ export interface User {
   date_joined: string;
   last_login?: string;
   is_company_user?: boolean;
+  // Additional profile data that comes from backend
+  experiences?: Experience[];
+  education?: Education[];
+  user_skills?: UserSkill[];
+  summary?: string;
+  initials?: string;
+  is_verified?: boolean;
+  privacy_public_profile?: boolean;
+  privacy_show_connections?: boolean;
+  full_name?: string;
 }
 
 // Authentication types

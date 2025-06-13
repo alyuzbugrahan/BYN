@@ -18,7 +18,8 @@ import {
   BuildingOfficeIcon,
   ExclamationTriangleIcon,
   CameraIcon,
-  XMarkIcon
+  XMarkIcon,
+  TagIcon
 } from '@heroicons/react/24/outline';
 import {
   CheckBadgeIcon
@@ -36,6 +37,9 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'none' | 'pending' | 'connected'>('none');
+  const [addingSkill, setAddingSkill] = useState(false);
+  const [addingExperience, setAddingExperience] = useState(false);
+  const [addingEducation, setAddingEducation] = useState(false);
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
@@ -45,9 +49,36 @@ const ProfilePage: React.FC = () => {
     industry: '',
     about: '',
     phone_number: '',
-    website: ''
+    website: '',
+    experience_level: 'entry' as 'intern' | 'entry' | 'associate' | 'mid' | 'senior' | 'executive'
+  });
+  
+  // Separate state for bio notes
+  const [bioNotes, setBioNotes] = useState<string[]>([]);
+  const [newBioNote, setNewBioNote] = useState('');
+  const [skillForm, setSkillForm] = useState({
+    name: '',
+    proficiency: 'intermediate' as 'beginner' | 'intermediate' | 'advanced' | 'expert'
+  });
+  const [experienceForm, setExperienceForm] = useState({
+    title: '',
+    company: '',
+    location: '',
+    start_date: '',
+    end_date: '',
+    is_current: false,
+    description: ''
+  });
+  const [educationForm, setEducationForm] = useState({
+    school: '',
+    degree: '',
+    field_of_study: '',
+    start_year: '',
+    end_year: '',
+    description: ''
   });
 
+  
   // Determine if viewing own profile
   const isOwnProfile = !id || (currentUser && id === currentUser.id.toString());
   const profileUserId = isOwnProfile ? currentUser?.id : parseInt(id || '0');
@@ -80,21 +111,25 @@ const ProfilePage: React.FC = () => {
         industry: userData.industry || '',
         about: userData.about || '',
         phone_number: userData.phone_number || '',
-        website: userData.website || ''
+        website: userData.website || '',
+        experience_level: userData.experience_level || 'entry'
       });
-
-      // Fetch additional profile data for own profile
-      if (isOwnProfile) {
-        const [experiencesData, educationData, skillsData] = await Promise.all([
-          usersAPI.getExperiences(),
-          usersAPI.getEducation(),
-          usersAPI.getSkills()
-        ]);
-        
-        setExperiences(Array.isArray(experiencesData) ? experiencesData : []);
-        setEducation(Array.isArray(educationData) ? educationData : []);
-        setSkills(Array.isArray(skillsData) ? skillsData : []);
+      
+      // Initialize bio notes from localStorage
+      const savedNotes = localStorage.getItem(`bioNotes_${userData.id}`);
+      if (savedNotes) {
+        setBioNotes(JSON.parse(savedNotes));
       }
+
+      // Set profile data from user object (no need for separate API calls)
+      setExperiences(Array.isArray(userData.experiences) ? userData.experiences : []);
+      setEducation(Array.isArray(userData.education) ? userData.education : []);
+      setSkills(Array.isArray(userData.user_skills) ? userData.user_skills : []);
+      
+      console.log('📊 Profile data loaded:');
+      console.log('- Experiences:', userData.experiences?.length || 0);
+      console.log('- Education:', userData.education?.length || 0);
+      console.log('- Skills:', userData.user_skills?.length || 0);
 
       // Fetch user's posts
       const postsData = await feedAPI.getPosts({
@@ -115,10 +150,117 @@ const ProfilePage: React.FC = () => {
     try {
       const updatedUser = await authAPI.updateProfile(editForm);
       setUser(updatedUser);
+      
+      // Update local profile data if it exists in the updated user
+      if (updatedUser.experiences) {
+        setExperiences(updatedUser.experiences);
+      }
+      if (updatedUser.education) {
+        setEducation(updatedUser.education);
+      }
+      if (updatedUser.user_skills) {
+        setSkills(updatedUser.user_skills);
+      }
+      
       setEditingProfile(false);
       toast.success('Profile updated successfully');
     } catch (error) {
       toast.error('Failed to update profile');
+    }
+  };
+
+  const handleAddBioNote = () => {
+    if (newBioNote.trim()) {
+      const updatedNotes = [...bioNotes, newBioNote.trim()];
+      setBioNotes(updatedNotes);
+      // Save to localStorage
+      if (currentUser?.id) {
+        localStorage.setItem(`bioNotes_${currentUser.id}`, JSON.stringify(updatedNotes));
+      }
+      setNewBioNote('');
+      toast.success('Bio note added');
+    }
+  };
+
+  const handleRemoveBioNote = (index: number) => {
+    const updatedNotes = bioNotes.filter((_, i) => i !== index);
+    setBioNotes(updatedNotes);
+    // Save to localStorage
+    if (currentUser?.id) {
+      localStorage.setItem(`bioNotes_${currentUser.id}`, JSON.stringify(updatedNotes));
+    }
+    toast.success('Bio note removed');
+  };
+
+  const handleRemoveSkill = async (skillId: number) => {
+    try {
+      await usersAPI.removeSkill(skillId);
+      setSkills(prevSkills => prevSkills.filter(skill => skill.id !== skillId));
+      toast.success('Skill removed successfully');
+    } catch (error) {
+      toast.error('Failed to remove skill');
+    }
+  };
+
+  const handleAddSkill = async () => {
+    try {
+      const newSkill = await usersAPI.addSkill(skillForm.name);
+      toast.success('Skill added successfully');
+      setAddingSkill(false);
+      setSkillForm({ name: '', proficiency: 'intermediate' });
+      
+      // Update local state instead of refetching all data
+      setSkills(prevSkills => [...prevSkills, newSkill]);
+    } catch (error) {
+      toast.error('Failed to add skill');
+    }
+  };
+
+  const handleAddExperience = async () => {
+    try {
+      const newExperience = await usersAPI.addExperience(experienceForm);
+      toast.success('Experience added successfully');
+      setAddingExperience(false);
+      setExperienceForm({
+        title: '',
+        company: '',
+        location: '',
+        start_date: '',
+        end_date: '',
+        is_current: false,
+        description: ''
+      });
+      
+      // Update local state instead of refetching all data
+      setExperiences(prevExperiences => [...prevExperiences, newExperience]);
+    } catch (error) {
+      toast.error('Failed to add experience');
+    }
+  };
+
+  const handleAddEducation = async () => {
+    try {
+      const educationData = {
+        ...educationForm,
+        start_year: parseInt(educationForm.start_year) || new Date().getFullYear(),
+        end_year: educationForm.end_year ? parseInt(educationForm.end_year) : undefined
+      };
+      const newEducation = await usersAPI.addEducation(educationData);
+      toast.success('Education added successfully');
+      setAddingEducation(false);
+      setEducationForm({
+        school: '',
+        degree: '',
+        field_of_study: '',
+        start_year: '',
+        end_year: '',
+        description: ''
+      });
+      
+      // Update local state instead of refetching all data
+      setEducation(prevEducation => [...prevEducation, newEducation]);
+    } catch (error) {
+      toast.error('Failed to add education');
     }
   };
 
@@ -212,6 +354,9 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  // Debug logs removed - data now properly loaded from user object
+  
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
@@ -290,6 +435,14 @@ const ProfilePage: React.FC = () => {
                           <span>{calculateExperience()} years experience</span>
                         </div>
                       )}
+                      
+                      {user.experience_level && (
+                        <div className="flex items-center space-x-1">
+                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium capitalize">
+                            {user.experience_level.replace('_', ' ')} Level
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -363,104 +516,228 @@ const ProfilePage: React.FC = () => {
           </div>
         )}
 
-        {/* Experience Section */}
-        {isOwnProfile && experiences.length > 0 && (
+        {/* Bio Notes Section */}
+        {isOwnProfile && (
           <div className="bg-white rounded-lg shadow-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Experience</h2>
-              <button className="p-2 text-gray-400 hover:text-linkedin-600">
+              <h2 className="text-xl font-bold text-gray-900">Personal Notes</h2>
+              <button 
+                onClick={() => setNewBioNote('')}
+                className="p-2 text-gray-400 hover:text-linkedin-600"
+              >
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="space-y-6">
-              {experiences.map((experience) => (
-                <div key={experience.id} className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
-                    <BuildingOfficeIcon className="w-6 h-6 text-gray-400" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{experience.title}</h3>
-                    <p className="text-linkedin-600 font-medium">{experience.company}</p>
-                    {experience.location && (
-                      <p className="text-sm text-gray-600">{experience.location}</p>
-                    )}
-                    <p className="text-sm text-gray-500 mt-1">
-                      {formatDate(experience.start_date)} - {
-                        experience.is_current ? 'Present' : formatDate(experience.end_date!)
-                      }
-                    </p>
-                    {experience.description && (
-                      <p className="text-gray-700 text-sm mt-2 whitespace-pre-line">
-                        {experience.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
+            {/* Add new bio note */}
+            <div className="mb-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newBioNote}
+                  onChange={(e) => setNewBioNote(e.target.value)}
+                  placeholder="Add a personal note or reminder..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500 text-sm"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddBioNote()}
+                />
+                <button
+                  onClick={handleAddBioNote}
+                  disabled={!newBioNote.trim()}
+                  className="px-3 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                </button>
+              </div>
             </div>
+
+            {/* Display bio notes */}
+            {bioNotes.length > 0 ? (
+              <div className="space-y-2">
+                {bioNotes.map((note, index) => (
+                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                    <span className="text-gray-700 text-sm">{note}</span>
+                    <button
+                      onClick={() => handleRemoveBioNote(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <TagIcon className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-gray-500 text-sm">No personal notes added yet</p>
+                <p className="text-gray-400 text-xs mt-1">Add notes to remember important details about your profile</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Experience Section */}
+        {(experiences.length > 0 || isOwnProfile) && (
+          <div className="bg-white rounded-lg shadow-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Experience</h2>
+              {isOwnProfile && (
+                <button 
+                  onClick={() => setAddingExperience(true)}
+                  className="p-2 text-gray-400 hover:text-linkedin-600"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+            
+            {experiences.length > 0 ? (
+              <div className="space-y-6">
+                {experiences.map((experience) => (
+                  <div key={experience.id} className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                      <BuildingOfficeIcon className="w-6 h-6 text-gray-400" />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{experience.title}</h3>
+                      <p className="text-linkedin-600 font-medium">{experience.company}</p>
+                      {experience.location && (
+                        <p className="text-sm text-gray-600">{experience.location}</p>
+                      )}
+                      <p className="text-sm text-gray-500 mt-1">
+                        {formatDate(experience.start_date)} - {
+                          experience.is_current ? 'Present' : formatDate(experience.end_date!)
+                        }
+                      </p>
+                      {experience.description && (
+                        <p className="text-gray-700 text-sm mt-2 whitespace-pre-line">
+                          {experience.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <BriefcaseIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 mb-4">No work experience added yet</p>
+                <button
+                  onClick={() => setAddingExperience(true)}
+                  className="px-4 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600"
+                >
+                  Add Your First Experience
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* Education Section */}
-        {isOwnProfile && education.length > 0 && (
+        {(education.length > 0 || isOwnProfile) && (
           <div className="bg-white rounded-lg shadow-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">Education</h2>
-              <button className="p-2 text-gray-400 hover:text-linkedin-600">
-                <PlusIcon className="w-5 h-5" />
-              </button>
+              {isOwnProfile && (
+                <button 
+                  onClick={() => setAddingEducation(true)}
+                  className="p-2 text-gray-400 hover:text-linkedin-600"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                </button>
+              )}
             </div>
             
-            <div className="space-y-6">
-              {education.map((edu) => (
-                <div key={edu.id} className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
-                    <AcademicCapIcon className="w-6 h-6 text-gray-400" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{edu.school}</h3>
-                    <p className="text-linkedin-600 font-medium">{edu.degree}</p>
-                    {edu.field_of_study && (
-                      <p className="text-sm text-gray-600">{edu.field_of_study}</p>
-                    )}
-                    <p className="text-sm text-gray-500 mt-1">
-                      {edu.start_year} - {edu.end_year || 'Present'}
-                    </p>
-                    {edu.description && (
-                      <p className="text-gray-700 text-sm mt-2 whitespace-pre-line">
-                        {edu.description}
+            {education.length > 0 ? (
+              <div className="space-y-6">
+                {education.map((edu) => (
+                  <div key={edu.id} className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                      <AcademicCapIcon className="w-6 h-6 text-gray-400" />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{edu.school}</h3>
+                      <p className="text-linkedin-600 font-medium">{edu.degree}</p>
+                      {edu.field_of_study && (
+                        <p className="text-sm text-gray-600">{edu.field_of_study}</p>
+                      )}
+                      <p className="text-sm text-gray-500 mt-1">
+                        {edu.start_year} - {edu.end_year || 'Present'}
                       </p>
-                    )}
+                      {edu.description && (
+                        <p className="text-gray-700 text-sm mt-2 whitespace-pre-line">
+                          {edu.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <AcademicCapIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 mb-4">No education added yet</p>
+                <button
+                  onClick={() => setAddingEducation(true)}
+                  className="px-4 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600"
+                >
+                  Add Your First Education
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* Skills Section */}
-        {isOwnProfile && skills.length > 0 && (
+        {(skills.length > 0 || isOwnProfile) && (
           <div className="bg-white rounded-lg shadow-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">Skills</h2>
-              <button className="p-2 text-gray-400 hover:text-linkedin-600">
-                <PlusIcon className="w-5 h-5" />
-              </button>
+              {isOwnProfile && (
+                <button 
+                  onClick={() => setAddingSkill(true)}
+                  className="p-2 text-gray-400 hover:text-linkedin-600"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                </button>
+              )}
             </div>
             
-            <div className="flex flex-wrap gap-2">
-              {skills.map((userSkill) => (
-                <span
-                  key={userSkill.id}
-                  className="px-3 py-1 bg-linkedin-100 text-linkedin-700 rounded-full text-sm font-medium"
+            {skills.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {skills.map((userSkill) => (
+                  <div
+                    key={userSkill.id}
+                    className="relative group px-3 py-1 bg-linkedin-100 text-linkedin-700 rounded-full text-sm font-medium"
+                  >
+                    <span>{userSkill.skill.name}</span>
+                    {isOwnProfile && (
+                      <button
+                        onClick={() => handleRemoveSkill(userSkill.id)}
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        title="Remove skill"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <TagIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 mb-4">No skills added yet</p>
+                <button
+                  onClick={() => setAddingSkill(true)}
+                  className="px-4 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600"
                 >
-                  {userSkill.skill.name}
-                </span>
-              ))}
-            </div>
+                  Add Your First Skill
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -485,6 +762,310 @@ const ProfilePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Add Skill Modal */}
+      {addingSkill && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Add Skill</h3>
+                <button
+                  onClick={() => setAddingSkill(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Skill Name
+                  </label>
+                  <input
+                    type="text"
+                    value={skillForm.name}
+                    onChange={(e) => setSkillForm({ ...skillForm, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    placeholder="e.g., JavaScript, Project Management"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setAddingSkill(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddSkill}
+                  disabled={!skillForm.name.trim()}
+                  className="flex-1 px-4 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Add Skill
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Experience Modal */}
+      {addingExperience && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Add Experience</h3>
+                <button
+                  onClick={() => setAddingExperience(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Job Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={experienceForm.title}
+                    onChange={(e) => setExperienceForm({ ...experienceForm, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Company *
+                  </label>
+                  <input
+                    type="text"
+                    value={experienceForm.company}
+                    onChange={(e) => setExperienceForm({ ...experienceForm, company: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={experienceForm.location}
+                    onChange={(e) => setExperienceForm({ ...experienceForm, location: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Date *
+                    </label>
+                    <input
+                      type="date"
+                      value={experienceForm.start_date}
+                      onChange={(e) => setExperienceForm({ ...experienceForm, start_date: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={experienceForm.end_date}
+                      onChange={(e) => setExperienceForm({ ...experienceForm, end_date: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                      disabled={experienceForm.is_current}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="is_current"
+                    checked={experienceForm.is_current}
+                    onChange={(e) => setExperienceForm({ 
+                      ...experienceForm, 
+                      is_current: e.target.checked,
+                      end_date: e.target.checked ? '' : experienceForm.end_date
+                    })}
+                    className="h-4 w-4 text-linkedin-600 focus:ring-linkedin-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="is_current" className="ml-2 block text-sm text-gray-900">
+                    I currently work here
+                  </label>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={experienceForm.description}
+                    onChange={(e) => setExperienceForm({ ...experienceForm, description: e.target.value })}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    placeholder="Describe your role and achievements..."
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setAddingExperience(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddExperience}
+                  disabled={!experienceForm.title || !experienceForm.company || !experienceForm.start_date}
+                  className="flex-1 px-4 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Add Experience
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Education Modal */}
+      {addingEducation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Add Education</h3>
+                <button
+                  onClick={() => setAddingEducation(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    School *
+                  </label>
+                  <input
+                    type="text"
+                    value={educationForm.school}
+                    onChange={(e) => setEducationForm({ ...educationForm, school: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Degree
+                  </label>
+                  <input
+                    type="text"
+                    value={educationForm.degree}
+                    onChange={(e) => setEducationForm({ ...educationForm, degree: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    placeholder="e.g., Bachelor of Science"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Field of Study
+                  </label>
+                  <input
+                    type="text"
+                    value={educationForm.field_of_study}
+                    onChange={(e) => setEducationForm({ ...educationForm, field_of_study: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    placeholder="e.g., Computer Science"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Year *
+                    </label>
+                    <input
+                      type="number"
+                      value={educationForm.start_year}
+                      onChange={(e) => setEducationForm({ ...educationForm, start_year: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                      min="1900"
+                      max={new Date().getFullYear()}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      End Year
+                    </label>
+                    <input
+                      type="number"
+                      value={educationForm.end_year}
+                      onChange={(e) => setEducationForm({ ...educationForm, end_year: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                      min="1900"
+                      max={new Date().getFullYear() + 10}
+                      placeholder="Leave empty if ongoing"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={educationForm.description}
+                    onChange={(e) => setEducationForm({ ...educationForm, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    placeholder="Describe your academic achievements, activities, etc."
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setAddingEducation(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddEducation}
+                  disabled={!educationForm.school || !educationForm.start_year}
+                  className="flex-1 px-4 py-2 bg-linkedin-500 text-white rounded-md hover:bg-linkedin-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Add Education
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Profile Modal */}
       {editingProfile && (
@@ -605,19 +1186,104 @@ const ProfilePage: React.FC = () => {
                     />
                   </div>
                   
+                                  <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    value={editForm.website}
+                    onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+              
+              {/* Experience Level */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Experience Level
+                </label>
+                <select
+                  value={editForm.experience_level}
+                  onChange={(e) => setEditForm({ 
+                    ...editForm, 
+                    experience_level: e.target.value as 'intern' | 'entry' | 'associate' | 'mid' | 'senior' | 'executive'
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
+                >
+                  <option value="intern">Intern</option>
+                  <option value="entry">Entry Level</option>
+                  <option value="associate">Associate</option>
+                  <option value="mid">Mid Level</option>
+                  <option value="senior">Senior</option>
+                  <option value="executive">Executive</option>
+                </select>
+              </div>
+              
+              {/* Profile Images */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Profile Picture URL
+                  </label>
+                  <input
+                    type="url"
+                    value={user?.profile_picture || ''}
+                    onChange={(e) => {
+                      // This would need to be handled differently for file uploads
+                      // For now, showing as read-only URL
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500 bg-gray-50"
+                    placeholder="Profile picture URL"
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Upload via profile picture button above</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cover Image URL
+                  </label>
+                  <input
+                    type="url"
+                    value={user?.cover_image || ''}
+                    onChange={(e) => {
+                      // This would need to be handled differently for file uploads
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500 bg-gray-50"
+                    placeholder="Cover image URL"
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Upload via cover image button above</p>
+                </div>
+              </div>
+              
+              {/* Additional Info */}
+              <div className="pt-4 border-t">
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Profile Statistics (Read-only)</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Website
-                    </label>
-                    <input
-                      type="url"
-                      value={editForm.website}
-                      onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-500"
-                      placeholder="https://..."
-                    />
+                    <label className="block text-gray-600">Member Since</label>
+                    <p className="font-medium">{new Date(user?.date_joined).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <label className="block text-gray-600">Last Login</label>
+                    <p className="font-medium">
+                      {user?.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-gray-600">Account Type</label>
+                    <p className="font-medium">{user?.is_company_user ? 'Company' : 'Individual'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-gray-600">Profile ID</label>
+                    <p className="font-medium text-xs text-gray-500">#{user?.id}</p>
                   </div>
                 </div>
+              </div>
               </div>
               
               <div className="flex space-x-3 mt-6 pt-6 border-t">
