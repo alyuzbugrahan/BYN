@@ -43,4 +43,4 @@ services:
              python manage.py runserver 0.0.0.0:8000"
 
 volumes:
-  postgres_data: 
+  postgres_data:
