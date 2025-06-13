@@ -215,13 +215,15 @@ SIMPLE_JWT = {
 }
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = [
-  # Remote frontend on Lightsail
-    "*",  # Allow all origins for development/testing
-]
-
 # For development only - allow all origins
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Specific origins (use when CORS_ALLOW_ALL_ORIGINS is False)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://3.71.10.131:3000",  # Remote frontend on Lightsail
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
