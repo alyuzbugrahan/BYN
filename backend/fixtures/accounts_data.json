@@ -1,0 +1,482 @@
+[
+{
+  "model": "accounts.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$VJcah8ec98fsZNiPOB6ET4$YrC3xTUx7qazRG5hb5NHG05kavf998IaMk0iuMH1mKs=",
+    "is_superuser": false,
+    "email": "john.doe@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "headline": "Software Engineer | Full Stack Developer",
+    "summary": "Passionate software engineer with 5+ years of experience in full-stack development.",
+    "location": "San Francisco, CA",
+    "profile_picture": "profile_pictures/profile_1_john.jpg",
+    "current_position": "Senior Software Engineer",
+    "industry": "Technology",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": true,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-11T20:30:52.081Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$e6nTBOsO8xYxB03oqrwOwb$FfAgUSsGrXhSRz6mOesixg1HkYteeF6ZgKB4hu4lTpc=",
+    "is_superuser": false,
+    "email": "jane.smith@example.com",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "headline": "Product Manager | AI & Machine Learning",
+    "summary": "Product leader with expertise in AI/ML products and user experience design.",
+    "location": "New York, NY",
+    "profile_picture": "profile_pictures/profile_2_jane.jpg",
+    "current_position": "Senior Product Manager",
+    "industry": "Technology",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": true,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-11T20:30:52.284Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$MtCOCC2oUJNrLABaTFFV8p$ceD48avLHE+wq8Y3WFuX/QyTzT1TmSadl4fr+sP0PSc=",
+    "is_superuser": false,
+    "email": "alex.johnson@example.com",
+    "first_name": "Alex",
+    "last_name": "Johnson",
+    "headline": "Data Scientist | Analytics Expert",
+    "summary": "Data scientist specializing in predictive analytics and business intelligence.",
+    "location": "Seattle, WA",
+    "profile_picture": "profile_pictures/profile_3_alex.jpg",
+    "current_position": "Lead Data Scientist",
+    "industry": "Technology",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-11T20:30:52.474Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$kQOHsSZ2FwASrTq97vNa5j$cPZAN42Ec6horB8zM46XeSGp4jj/pGPpyJYk3Y0F+m4=",
+    "is_superuser": false,
+    "email": "sarah.wilson@example.com",
+    "first_name": "Sarah",
+    "last_name": "Wilson",
+    "headline": "UX Designer | Design Systems",
+    "summary": "Creative UX designer passionate about building intuitive and accessible digital experiences.",
+    "location": "Austin, TX",
+    "profile_picture": "profile_pictures/profile_4_sarah.jpg",
+    "current_position": "Senior UX Designer",
+    "industry": "Design",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": true,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-11T20:30:52.663Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$wFGp9Y7mTMk2WIdlqmDet5$yrWrm3pZCU23TT6POmi5giL59Z8QkQBjjZw1nksMBXY=",
+    "is_superuser": false,
+    "email": "mike.brown@example.com",
+    "first_name": "Mike",
+    "last_name": "Brown",
+    "headline": "DevOps Engineer | Cloud Infrastructure",
+    "summary": "DevOps engineer with expertise in cloud infrastructure and automation.",
+    "location": "Denver, CO",
+    "profile_picture": "profile_pictures/profile_5_mike.jpg",
+    "current_position": "DevOps Engineer",
+    "industry": "Technology",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-11T20:30:52.853Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$RCCZa6ZpsVTOQRlcfL3eAh$PDMw6VsmEEK8kmLQPft1VE8zlf1QPvW6rcMp6qZgUS0=",
+    "is_superuser": false,
+    "email": "lisa.davis@example.com",
+    "first_name": "Lisa",
+    "last_name": "Davis",
+    "headline": "Marketing Director | Digital Strategy",
+    "summary": "Marketing professional with 8+ years of experience in digital marketing and strategy.",
+    "location": "Chicago, IL",
+    "profile_picture": "",
+    "current_position": "Marketing Director",
+    "industry": "Marketing",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": true,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-11T20:30:53.045Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$ksTen5Hkmz8a2g2vCqnUu2$MPXl3Zfd5cZbh1HZqPLZEevDM6aQybK/66AU4GEj5Eo=",
+    "is_superuser": false,
+    "email": "admin@techcorp.com",
+    "first_name": "Tech",
+    "last_name": "Admin",
+    "headline": "HR Manager at TechCorp",
+    "summary": "",
+    "location": "",
+    "profile_picture": "profile_pictures/profile_7_tech.jpg",
+    "current_position": "",
+    "industry": "",
+    "experience_level": "",
+    "is_company_user": true,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-12T14:03:30.940Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$Pe36EKHXOTw7Ku3luPqV90$avVKHXQsGF9lf+IQQxn5qn7/ymF9brqiHCjk1ccmF10=",
+    "is_superuser": false,
+    "email": "hr@innovatelabs.com",
+    "first_name": "Innovate",
+    "last_name": "HR",
+    "headline": "Head of Talent at InnovateLabs",
+    "summary": "",
+    "location": "",
+    "profile_picture": "profile_pictures/profile_8_innovate.jpg",
+    "current_position": "",
+    "industry": "",
+    "experience_level": "",
+    "is_company_user": true,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-12T14:04:23.939Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$H2GuVGE3y6qWZwbrwAhpKX$BuM3Lti9pT6V4Pf/yMmMdWCkkDh757Q4V4evMLBe6+4=",
+    "is_superuser": false,
+    "email": "recruiter@datasolutions.com",
+    "first_name": "Data",
+    "last_name": "Recruiter",
+    "headline": "Senior Recruiter at DataSolutions",
+    "summary": "",
+    "location": "",
+    "profile_picture": "profile_pictures/profile_9_data.jpg",
+    "current_position": "",
+    "industry": "",
+    "experience_level": "",
+    "is_company_user": true,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-12T14:04:24.146Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$NRsd0RMLN49dCKfyTQklig$yER+5Y8HWQdL92gKnbbOM43xu4jFi8/PTA5KfsfYbzY=",
+    "is_superuser": false,
+    "email": "test@example.com",
+    "first_name": "Test",
+    "last_name": "User",
+    "headline": "",
+    "summary": "",
+    "location": "",
+    "profile_picture": "",
+    "current_position": "",
+    "industry": "",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-12T17:50:40.052Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 11,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$Ai4RbiZLh88FXmivdPuQfB$MBsLqpupcyh/rhUQLO800GJFJtYABCjaXYXdyBnko8c=",
+    "is_superuser": false,
+    "email": "newuser@example.com",
+    "first_name": "New",
+    "last_name": "User",
+    "headline": "",
+    "summary": "",
+    "location": "",
+    "profile_picture": "",
+    "current_position": "",
+    "industry": "",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-06-12T17:52:13.879Z",
+    "last_login": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 12,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$73f0QfTu2X8aSTpmi2RURy$O8PzHcT41by0hSkIck7JG8EwdkrobK668kyRVHoCpp0=",
+    "is_superuser": true,
+    "email": "test@test.com",
+    "first_name": "admin",
+    "last_name": "admin",
+    "headline": "",
+    "summary": "",
+    "location": "",
+    "profile_picture": "",
+    "current_position": "",
+    "industry": "",
+    "experience_level": "",
+    "is_company_user": false,
+    "is_verified": false,
+    "privacy_public_profile": true,
+    "privacy_show_connections": true,
+    "is_active": true,
+    "is_staff": true,
+    "date_joined": "2025-06-12T21:30:08.029Z",
+    "last_login": "2025-06-12T21:33:39.860Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 1,
+  "fields": {
+    "name": "Python",
+    "created_at": "2025-06-12T10:16:57.094Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 2,
+  "fields": {
+    "name": "JavaScript",
+    "created_at": "2025-06-12T10:16:57.101Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 3,
+  "fields": {
+    "name": "React",
+    "created_at": "2025-06-12T10:16:57.108Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 4,
+  "fields": {
+    "name": "Django",
+    "created_at": "2025-06-12T10:16:57.115Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 5,
+  "fields": {
+    "name": "Node.js",
+    "created_at": "2025-06-12T10:16:57.122Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 6,
+  "fields": {
+    "name": "SQL",
+    "created_at": "2025-06-12T10:16:57.129Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 7,
+  "fields": {
+    "name": "PostgreSQL",
+    "created_at": "2025-06-12T10:16:57.135Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 8,
+  "fields": {
+    "name": "AWS",
+    "created_at": "2025-06-12T10:16:57.142Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 9,
+  "fields": {
+    "name": "Docker",
+    "created_at": "2025-06-12T10:16:57.149Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 10,
+  "fields": {
+    "name": "Kubernetes",
+    "created_at": "2025-06-12T10:16:57.155Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 11,
+  "fields": {
+    "name": "Git",
+    "created_at": "2025-06-12T10:16:57.162Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 12,
+  "fields": {
+    "name": "REST APIs",
+    "created_at": "2025-06-12T10:16:57.170Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 13,
+  "fields": {
+    "name": "GraphQL",
+    "created_at": "2025-06-12T10:16:57.177Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 14,
+  "fields": {
+    "name": "TypeScript",
+    "created_at": "2025-06-12T10:16:57.184Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 15,
+  "fields": {
+    "name": "Machine Learning",
+    "created_at": "2025-06-12T10:16:57.191Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 16,
+  "fields": {
+    "name": "Data Analysis",
+    "created_at": "2025-06-12T10:16:57.197Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 17,
+  "fields": {
+    "name": "Project Management",
+    "created_at": "2025-06-12T10:16:57.204Z"
+  }
+},
+{
+  "model": "accounts.skill",
+  "pk": 18,
+  "fields": {
+    "name": "Leadership",
+    "created_at": "2025-06-12T10:16:57.211Z"
+  }
+}
+]

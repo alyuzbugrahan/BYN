@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 """
 Script to create sample data for LinkedIn Clone
-Run this with: python manage.py shell < create_sample_data.py
+Run this with: python create_sample_data.py
 """
+
+import os
+import sys
+import django
+
+# Setup Django environment
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'linkedin_clone.settings')
+django.setup()
 
 from accounts.models import User, Skill, Experience, Education, UserSkill
 from companies.models import Industry, Company

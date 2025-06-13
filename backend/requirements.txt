@@ -22,7 +22,7 @@ numpy==1.25.2
 pandas==2.1.4
 
 # Advanced Search
-elasticsearch==8.11.0
+elasticsearch==7.17.9
 django-elasticsearch-dsl==7.3
 
 # Analytics and Monitoring
@@ -40,10 +40,13 @@ sendgrid==6.10.0
 # Security and Rate Limiting
 django-ratelimit==4.1.0
 django-axes==6.1.1
-cryptography==41.0.8
+cryptography==43.0.3
 
 # API Documentation
 drf-spectacular==0.26.5
 
 # Filter
-django-filter==23.3 
+django-filter==23.3
+
+# HTTP Requests
+requests==2.31.0 

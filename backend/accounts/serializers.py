@@ -88,6 +88,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     experiences = ExperienceSerializer(many=True, read_only=True)
     education = EducationSerializer(many=True, read_only=True)
     user_skills = UserSkillSerializer(many=True, read_only=True)
+    profile_picture = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -96,6 +97,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
                  'industry', 'experience_level', 'is_verified', 'is_company_user', 'privacy_public_profile',
                  'privacy_show_connections', 'date_joined', 'experiences', 'education', 'user_skills')
         read_only_fields = ('id', 'email', 'is_verified', 'is_company_user', 'date_joined')
+    
+    def get_profile_picture(self, obj):
+        if obj.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            return obj.profile_picture.url
+        return None
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
@@ -135,12 +144,21 @@ class UserSearchSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
     initials = serializers.CharField(read_only=True)
     mutual_connections_count = serializers.IntegerField(read_only=True)
+    profile_picture = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = ('id', 'full_name', 'initials', 'headline', 'current_position',
                  'location', 'profile_picture', 'industry', 'is_verified',
                  'mutual_connections_count')
+    
+    def get_profile_picture(self, obj):
+        if obj.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            return obj.profile_picture.url
+        return None
 
 
 class SkillEndorsementSerializer(serializers.ModelSerializer):

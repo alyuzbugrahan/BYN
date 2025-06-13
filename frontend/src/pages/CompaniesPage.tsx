@@ -62,6 +62,7 @@ const CompaniesPage: React.FC = () => {
     }
   };
 
+
   const handleFollowCompany = async (companyId: number) => {
     try {
       if (followedCompanies.has(companyId)) {

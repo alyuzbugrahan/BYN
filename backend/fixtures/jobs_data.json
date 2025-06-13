@@ -1,0 +1,408 @@
+[
+{
+  "model": "jobs.jobcategory",
+  "pk": 1,
+  "fields": {
+    "name": "Software Development",
+    "slug": "software-development",
+    "description": "Software engineering and development roles",
+    "created_at": "2025-06-12T14:11:58.811Z"
+  }
+},
+{
+  "model": "jobs.jobcategory",
+  "pk": 2,
+  "fields": {
+    "name": "Data Science",
+    "slug": "data-science",
+    "description": "Data science and analytics roles",
+    "created_at": "2025-06-12T14:11:58.817Z"
+  }
+},
+{
+  "model": "jobs.jobcategory",
+  "pk": 3,
+  "fields": {
+    "name": "Product Management",
+    "slug": "product-management",
+    "description": "Product management and strategy roles",
+    "created_at": "2025-06-12T14:11:58.822Z"
+  }
+},
+{
+  "model": "jobs.jobcategory",
+  "pk": 4,
+  "fields": {
+    "name": "Design",
+    "slug": "design",
+    "description": "UI/UX and design roles",
+    "created_at": "2025-06-12T14:11:58.828Z"
+  }
+},
+{
+  "model": "jobs.jobcategory",
+  "pk": 5,
+  "fields": {
+    "name": "Marketing",
+    "slug": "marketing",
+    "description": "Marketing and growth roles",
+    "created_at": "2025-06-12T14:11:58.834Z"
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 1,
+  "fields": {
+    "title": "Senior Software Engineer",
+    "slug": "",
+    "description": "Exciting opportunity to work as a Senior Software Engineer with cutting-edge technologies.",
+    "requirements": "Strong programming skills and experience with relevant technologies.",
+    "responsibilities": "Design, develop, and maintain high-quality software solutions.",
+    "company": 1,
+    "location": "New York, NY",
+    "workplace_type": "remote",
+    "job_type": "full_time",
+    "experience_level": "senior",
+    "category": null,
+    "salary_min": "84295.00",
+    "salary_max": "111750.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 7,
+    "application_deadline": null,
+    "view_count": 0,
+    "application_count": 0,
+    "created_at": "2025-06-12T10:19:23.903Z",
+    "updated_at": "2025-06-12T10:19:23.903Z",
+    "skills_required": [
+      4,
+      2,
+      1
+    ],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 2,
+  "fields": {
+    "title": "Senior Software Engineer",
+    "slug": "senior-software-engineer-datasolutions-0",
+    "description": "Exciting opportunity to work as a Senior Software Engineer with cutting-edge technologies.",
+    "requirements": "Strong programming skills and experience with relevant technologies.",
+    "responsibilities": "Design, develop, and maintain high-quality software solutions.",
+    "company": 3,
+    "location": "Seattle, WA",
+    "workplace_type": "remote",
+    "job_type": "full_time",
+    "experience_level": "mid",
+    "category": null,
+    "salary_min": "88826.00",
+    "salary_max": "131710.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 1,
+    "application_deadline": null,
+    "view_count": 2,
+    "application_count": 0,
+    "created_at": "2025-06-12T10:20:04.793Z",
+    "updated_at": "2025-06-12T10:20:04.793Z",
+    "skills_required": [
+      4,
+      6
+    ],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 3,
+  "fields": {
+    "title": "Frontend Developer",
+    "slug": "frontend-developer-datasolutions-1",
+    "description": "Exciting opportunity to work as a Frontend Developer with cutting-edge technologies.",
+    "requirements": "Strong programming skills and experience with relevant technologies.",
+    "responsibilities": "Design, develop, and maintain high-quality software solutions.",
+    "company": 3,
+    "location": "San Francisco, CA",
+    "workplace_type": "on_site",
+    "job_type": "full_time",
+    "experience_level": "entry",
+    "category": null,
+    "salary_min": "82062.00",
+    "salary_max": "146630.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 1,
+    "application_deadline": null,
+    "view_count": 0,
+    "application_count": 0,
+    "created_at": "2025-06-12T10:20:04.816Z",
+    "updated_at": "2025-06-12T10:20:04.816Z",
+    "skills_required": [
+      4,
+      2,
+      1,
+      6
+    ],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 4,
+  "fields": {
+    "title": "Backend Developer",
+    "slug": "backend-developer-innovatelabs-2",
+    "description": "Exciting opportunity to work as a Backend Developer with cutting-edge technologies.",
+    "requirements": "Strong programming skills and experience with relevant technologies.",
+    "responsibilities": "Design, develop, and maintain high-quality software solutions.",
+    "company": 2,
+    "location": "Seattle, WA",
+    "workplace_type": "remote",
+    "job_type": "full_time",
+    "experience_level": "entry",
+    "category": null,
+    "salary_min": "83680.00",
+    "salary_max": "118900.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 1,
+    "application_deadline": null,
+    "view_count": 0,
+    "application_count": 0,
+    "created_at": "2025-06-12T10:20:04.844Z",
+    "updated_at": "2025-06-12T10:20:04.844Z",
+    "skills_required": [
+      2,
+      3,
+      6
+    ],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 5,
+  "fields": {
+    "title": "Full Stack Engineer",
+    "slug": "full-stack-engineer-techcorp-3",
+    "description": "Exciting opportunity to work as a Full Stack Engineer with cutting-edge technologies.",
+    "requirements": "Strong programming skills and experience with relevant technologies.",
+    "responsibilities": "Design, develop, and maintain high-quality software solutions.",
+    "company": 1,
+    "location": "San Francisco, CA",
+    "workplace_type": "on_site",
+    "job_type": "full_time",
+    "experience_level": "director",
+    "category": null,
+    "salary_min": "80827.00",
+    "salary_max": "145631.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 7,
+    "application_deadline": null,
+    "view_count": 0,
+    "application_count": 0,
+    "created_at": "2025-06-12T10:20:04.872Z",
+    "updated_at": "2025-06-12T10:20:04.872Z",
+    "skills_required": [
+      4,
+      1
+    ],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 6,
+  "fields": {
+    "title": "Data Scientist",
+    "slug": "data-scientist-techcorp-4",
+    "description": "Exciting opportunity to work as a Data Scientist with cutting-edge technologies.",
+    "requirements": "Strong programming skills and experience with relevant technologies.",
+    "responsibilities": "Design, develop, and maintain high-quality software solutions.",
+    "company": 1,
+    "location": "Seattle, WA",
+    "workplace_type": "remote",
+    "job_type": "full_time",
+    "experience_level": "entry",
+    "category": null,
+    "salary_min": "79946.00",
+    "salary_max": "101573.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 7,
+    "application_deadline": null,
+    "view_count": 4,
+    "application_count": 1,
+    "created_at": "2025-06-12T10:20:04.897Z",
+    "updated_at": "2025-06-12T13:27:38.932Z",
+    "skills_required": [
+      4,
+      2,
+      6
+    ],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 7,
+  "fields": {
+    "title": "IOS Developer",
+    "slug": "ios-developer-1",
+    "description": "IOS app",
+    "requirements": "Swift and SwiftUI",
+    "responsibilities": "Loyalty",
+    "company": 1,
+    "location": "Los Angles, CA",
+    "workplace_type": "on_site",
+    "job_type": "full_time",
+    "experience_level": "mid",
+    "category": null,
+    "salary_min": "100000.00",
+    "salary_max": "250000.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 7,
+    "application_deadline": "2025-08-17T17:31:00Z",
+    "view_count": 2,
+    "application_count": 0,
+    "created_at": "2025-06-12T14:31:54.510Z",
+    "updated_at": "2025-06-12T14:31:54.510Z",
+    "skills_required": [],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.job",
+  "pk": 8,
+  "fields": {
+    "title": "Senior System Engineer",
+    "slug": "senior-system-engineer-2",
+    "description": "We are seeking a highly skilled Senior System Engineer to join our dynamic IT team. The ideal candidate will design, implement, maintain, and optimize our IT infrastructure to ensure optimal performance, security, and reliability. You will be expected to collaborate across teams to deliver innovative solutions, support critical business processes, and uphold the highest standards of system performance and reliability.",
+    "requirements": "Bachelor's degree in Computer Science, Information Technology, or related field.\n\nMinimum of 5 years of experience in system engineering roles.\n\nDemonstrated experience with virtualization technologies (VMware, Hyper-V).\n\nSolid experience managing Linux and Windows server environments.\n\nFamiliarity with cloud platforms (AWS, Azure, or Google Cloud).\n\nStrong understanding of networking fundamentals and security practices.",
+    "responsibilities": "Design, deploy, and manage complex IT systems and infrastructures, ensuring high availability and scalability.\n\nMonitor system performance, security, and reliability; proactively address issues to maintain operational continuity.\n\nDevelop and implement infrastructure improvements and enhancements.\n\nCollaborate with cross-functional teams to analyze business requirements and deliver technical solutions.\n\nProvide expert-level troubleshooting, diagnostics, and resolution of complex system issues.\n\nEnsure compliance with IT security policies, standards, and procedures.\n\nDocument system configurations, processes, and procedures clearly and accurately.",
+    "company": 2,
+    "location": "Krakow, Poland",
+    "workplace_type": "hybrid",
+    "job_type": "full_time",
+    "experience_level": "mid",
+    "category": null,
+    "salary_min": "70000.00",
+    "salary_max": "200000.00",
+    "salary_currency": "USD",
+    "salary_type": "yearly",
+    "is_active": true,
+    "is_featured": false,
+    "posted_by": 8,
+    "application_deadline": "2025-09-18T18:23:00Z",
+    "view_count": 6,
+    "application_count": 1,
+    "created_at": "2025-06-12T15:26:26.778Z",
+    "updated_at": "2025-06-12T15:40:23.050Z",
+    "skills_required": [],
+    "skills_preferred": []
+  }
+},
+{
+  "model": "jobs.jobapplication",
+  "pk": 1,
+  "fields": {
+    "job": 6,
+    "applicant": 1,
+    "cover_letter": "I want this job",
+    "resume": "",
+    "portfolio_url": "",
+    "status": "submitted",
+    "status_updated_by": null,
+    "applied_date": "2025-06-12T13:27:38.946Z",
+    "status_updated_at": "2025-06-12T13:27:38.946Z"
+  }
+},
+{
+  "model": "jobs.jobapplication",
+  "pk": 2,
+  "fields": {
+    "job": 8,
+    "applicant": 1,
+    "cover_letter": "I need",
+    "resume": "",
+    "portfolio_url": "",
+    "status": "submitted",
+    "status_updated_by": null,
+    "applied_date": "2025-06-12T15:40:23.062Z",
+    "status_updated_at": "2025-06-12T15:40:23.062Z"
+  }
+},
+{
+  "model": "jobs.jobview",
+  "pk": 1,
+  "fields": {
+    "job": 6,
+    "user": 1,
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "viewed_at": "2025-06-12T12:42:54.481Z"
+  }
+},
+{
+  "model": "jobs.jobview",
+  "pk": 2,
+  "fields": {
+    "job": 2,
+    "user": 1,
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "viewed_at": "2025-06-12T13:26:42.752Z"
+  }
+},
+{
+  "model": "jobs.jobview",
+  "pk": 3,
+  "fields": {
+    "job": 7,
+    "user": 7,
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "viewed_at": "2025-06-12T14:33:38.320Z"
+  }
+},
+{
+  "model": "jobs.jobview",
+  "pk": 4,
+  "fields": {
+    "job": 8,
+    "user": 8,
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "viewed_at": "2025-06-12T15:26:29.769Z"
+  }
+},
+{
+  "model": "jobs.jobview",
+  "pk": 5,
+  "fields": {
+    "job": 8,
+    "user": 1,
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "viewed_at": "2025-06-12T15:40:15.764Z"
+  }
+}
+]

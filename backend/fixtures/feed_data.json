@@ -1,0 +1,40 @@
+[
+{
+  "model": "feed.post",
+  "pk": 1,
+  "fields": {
+    "author": 6,
+    "content": "Great networking event last night! Met so many inspiring professionals working on cutting-edge projects. Love this community! #Networking #Professional #Community",
+    "post_type": "text",
+    "visibility": "connections",
+    "image": "",
+    "video": "",
+    "document": "",
+    "article_title": "",
+    "article_url": "",
+    "article_description": "",
+    "article_image": "",
+    "shared_job": null,
+    "likes_count": 7,
+    "comments_count": 10,
+    "shares_count": 6,
+    "views_count": 86,
+    "is_pinned": false,
+    "is_featured": false,
+    "is_reported": false,
+    "is_approved": true,
+    "created_at": "2025-06-11T20:31:02.579Z",
+    "updated_at": "2025-06-12T16:10:41.927Z",
+    "hashtags": [
+      7,
+      20
+    ],
+    "mentioned_users": []
+  }
+},
+{
+  "model": "feed.post",
+  "pk": 2,
+  "fields": {
+    "author": 3,
+    "content": 

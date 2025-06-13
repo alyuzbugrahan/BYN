@@ -94,6 +94,7 @@ const JobsPage: React.FC = () => {
     return levels[level] || level;
   };
 
+
   const getJobType = (type: string) => {
     const types: { [key: string]: string } = {
       'full_time': 'Full-time',
