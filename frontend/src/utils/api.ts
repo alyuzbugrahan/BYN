@@ -52,11 +52,6 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
 
 // Get API base URL from environment variables
 const getAPIBaseURL = (): string => {
-  // Temporary fix: Hard-code remote server URL
-  const url = 'http://3.71.10.131:8000/api';
-  console.log('🌐 Using hard-coded API URL:', url);
-  return url;
-  
   // Check if environment variable is set
   if (process.env.REACT_APP_API_BASE_URL) {
     const url = `${process.env.REACT_APP_API_BASE_URL}/api`;
@@ -64,9 +59,10 @@ const getAPIBaseURL = (): string => {
     return url;
   }
   
-  // Fallback to relative URL (for development with proxy)
-  console.log('🌐 Using relative API URL with proxy: /api');
-  return '/api';
+  // Fallback to hardcoded URL for development
+  const fallbackUrl = 'http://3.71.10.131:8000/api';
+  console.log('🌐 Using fallback API URL:', fallbackUrl);
+  return fallbackUrl;
 };
 
 // Detailed logging utility

@@ -30,7 +30,7 @@ import {
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api',
+  baseURL: 'http://3.71.10.131:8000/api',
   timeout: 10000, // 10 second timeout
   headers: {
     'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const handleTokenRefresh = async (originalRequest: any): Promise<any> => {
     console.log('🔄 Attempting token refresh...');
   }
   
-  const response = await axios.post('/api/auth/token/refresh/', {
+  const response = await api.post('/auth/token/refresh/', {
     refresh: refreshToken
   });
   

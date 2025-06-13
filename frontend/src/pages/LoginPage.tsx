@@ -170,7 +170,8 @@ const LoginPage: React.FC = () => {
               onClick={async () => {
                 console.log('🔍 Testing API connection...');
                 try {
-                  const response = await fetch('http://3.71.10.131:8000/api/auth/login/', {
+                  const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://3.71.10.131:8000';
+                  const response = await fetch(`${apiUrl}/api/auth/login/`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -205,7 +206,8 @@ const LoginPage: React.FC = () => {
             
             <button
               onClick={() => {
-                console.log('📍 Current API Base URL:', 'http://3.71.10.131:8000/api');
+                const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://3.71.10.131:8000';
+                console.log('📍 Current API Base URL:', `${apiUrl}/api`);
                 console.log('🔑 Stored Access Token:', localStorage.getItem('accessToken'));
                 console.log('🔄 Stored Refresh Token:', localStorage.getItem('refreshToken'));
                 console.log('🌐 Current Location:', window.location.href);
