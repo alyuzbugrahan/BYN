@@ -18,13 +18,17 @@ const LoginPage: React.FC = () => {
   } = useForm<LoginCredentials>();
 
   const onSubmit = async (data: LoginCredentials) => {
+    console.log('🚀 Login form submitted:', data);
     try {
+      console.log('📞 Calling login function...');
       await login(data);
+      console.log('✅ Login successful, navigating to dashboard...');
       // Small delay to ensure auth context is fully updated
       setTimeout(() => {
         navigate('/dashboard');
       }, 100);
     } catch (error) {
+      console.error('❌ Login error in component:', error);
       // Error is handled in the auth context
     }
   };
@@ -155,6 +159,62 @@ const LoginPage: React.FC = () => {
               <strong>Note:</strong> Sample data (companies, jobs) not loaded on remote server yet.<br/>
               Backend script 'create_sample_data.py' needs to be run to populate demo content.
             </p>
+          </div>
+        </div>
+
+        {/* Debug Section */}
+        <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <h3 className="text-sm font-medium text-yellow-800 mb-2">🔧 Debug Tools:</h3>
+          <div className="space-y-2">
+            <button
+              onClick={async () => {
+                console.log('🔍 Testing API connection...');
+                try {
+                  const response = await fetch('http://3.71.10.131:8000/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      email: 'test@example.com',
+                      password: 'Test1234!'
+                    })
+                  });
+                  
+                  console.log('📊 Response status:', response.status);
+                  console.log('📊 Response headers:', Object.fromEntries(response.headers.entries()));
+                  
+                  if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API Response:', data);
+                    alert('API Test SUCCESS! Check console for details.');
+                  } else {
+                    const errorData = await response.text();
+                    console.log('❌ API Error:', errorData);
+                    alert(`API Test FAILED! Status: ${response.status}. Check console.`);
+                  }
+                } catch (error) {
+                  console.error('🔥 Network Error:', error);
+                  alert('Network Error! Check console.');
+                }
+              }}
+              className="w-full text-xs px-3 py-2 bg-yellow-200 text-yellow-800 rounded hover:bg-yellow-300"
+            >
+              Test API Direct (Raw Fetch)
+            </button>
+            
+            <button
+              onClick={() => {
+                console.log('📍 Current API Base URL:', 'http://3.71.10.131:8000/api');
+                console.log('🔑 Stored Access Token:', localStorage.getItem('accessToken'));
+                console.log('🔄 Stored Refresh Token:', localStorage.getItem('refreshToken'));
+                console.log('🌐 Current Location:', window.location.href);
+                alert('Check console for debug info!');
+              }}
+              className="w-full text-xs px-3 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Show Debug Info
+            </button>
           </div>
         </div>
       </div>
