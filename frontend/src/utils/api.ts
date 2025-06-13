@@ -43,9 +43,24 @@ import {
   TrendingContent
 } from '../types';
 
+// Get API base URL from environment variables
+const getAPIBaseURL = (): string => {
+  // Check if environment variable is set
+  if (process.env.REACT_APP_API_BASE_URL) {
+    const url = `${process.env.REACT_APP_API_BASE_URL}/api`;
+    console.log('🌐 Using API URL from environment:', url);
+    return url;
+  }
+  
+  // Fallback to relative URL (for development with proxy)
+  console.log('🌐 Using relative API URL with proxy: /api');
+  return '/api';
+};
+
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: getAPIBaseURL(),
+  timeout: process.env.REACT_APP_API_TIMEOUT ? parseInt(process.env.REACT_APP_API_TIMEOUT) : 10000,
   headers: {
     'Content-Type': 'application/json',
   },

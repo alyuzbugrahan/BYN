@@ -22,7 +22,7 @@ When the system starts up with sample data initialization enabled, it creates:
 ### Option 1: Development Mode (Automatic Sample Data)
 ```bash
 # Use the development docker-compose file with automatic sample data
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
 ### Option 2: Production Mode (No Sample Data)
