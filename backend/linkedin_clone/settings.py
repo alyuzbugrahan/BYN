@@ -223,6 +223,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://3.71.10.131:3000",  # Remote frontend on Lightsail
+    "https://your-vercel-app.vercel.app",  # Add your actual Vercel domain here
 ]
 
 CORS_ALLOW_CREDENTIALS = True
