@@ -223,7 +223,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://3.71.10.131:3000",  # Remote frontend on Lightsail
-    "https://your-vercel-app.vercel.app",  # Add your actual Vercel domain here
+    "https://byn-eight.vercel.app",  # Your actual Vercel domain
+ 
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -248,6 +249,12 @@ EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY', '')
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+# HTTPS Settings for production
+SECURE_SSL_REDIRECT = False  # Keep False if using HTTP backend
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+SECURE_REFERRER_POLICY = 'same-origin'
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
