@@ -123,15 +123,20 @@ CELERY_TIMEZONE = 'UTC'
 
 # Database configuration - Railway compatible
 # Railway provides DATABASE_URL automatically for PostgreSQL
-if config('DATABASE_URL', default=''):
+
+# Try multiple ways to get DATABASE_URL for Railway compatibility
+DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default='')
+
+if DATABASE_URL:
     # Use Railway's PostgreSQL DATABASE_URL
     DATABASES = {
         'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
+            default=DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
         )
     }
+    print(f"✅ Using DATABASE_URL: {DATABASE_URL[:50]}...")  # Debug: show first 50 chars
 else:
     # Local development with PostgreSQL
     DATABASES = {
@@ -144,6 +149,7 @@ else:
             'PORT': config('DB_PORT', default='5432'),
         }
     }
+    print("⚠️  No DATABASE_URL found, using local PostgreSQL config")
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
