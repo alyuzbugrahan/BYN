@@ -1,0 +1,43 @@
+{
+  "summary": {
+    "total_tests": 6,
+    "passed": 0,
+    "failed": 6,
+    "total_time": 0.16701340675354004,
+    "success_rate": 0.0
+  },
+  "detailed": {
+    "tests.test_authentication": {
+      "success": false,
+      "duration": 0.029003143310546875,
+      "output": "Traceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 11, in main\n    from django.core.management import execute_from_command_line\nModuleNotFoundError: No module named 'django'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 22, in <module>\n    main() \n    ^^^^^^\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 13, in main\n    raise ImportError(\nImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?\n"
+    },
+    "tests.test_user_profiles": {
+      "success": false,
+      "duration": 0.026500940322875977,
+      "output": "Traceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 11, in main\n    from django.core.management import execute_from_command_line\nModuleNotFoundError: No module named 'django'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 22, in <module>\n    main() \n    ^^^^^^\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 13, in main\n    raise ImportError(\nImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?\n"
+    },
+    "tests.test_companies": {
+      "success": false,
+      "duration": 0.026997804641723633,
+      "output": "Traceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 11, in main\n    from django.core.management import execute_from_command_line\nModuleNotFoundError: No module named 'django'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 22, in <module>\n    main() \n    ^^^^^^\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 13, in main\n    raise ImportError(\nImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?\n"
+    },
+    "tests.test_jobs": {
+      "success": false,
+      "duration": 0.026511669158935547,
+      "output": "Traceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 11, in main\n    from django.core.management import execute_from_command_line\nModuleNotFoundError: No module named 'django'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 22, in <module>\n    main() \n    ^^^^^^\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 13, in main\n    raise ImportError(\nImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?\n"
+    },
+    "tests.test_feed": {
+      "success": false,
+      "duration": 0.02700018882751465,
+      "output": "Traceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 11, in main\n    from django.core.management import execute_from_command_line\nModuleNotFoundError: No module named 'django'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 22, in <module>\n    main() \n    ^^^^^^\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 13, in main\n    raise ImportError(\nImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?\n"
+    },
+    "tests.test_connections": {
+      "success": false,
+      "duration": 0.028499841690063477,
+      "output": "Traceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 11, in main\n    from django.core.management import execute_from_command_line\nModuleNotFoundError: No module named 'django'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 22, in <module>\n    main() \n    ^^^^^^\n  File \"C:\\Users\\Bugra\\Desktop\\Projects\\BYN\\backend\\manage.py\", line 13, in main\n    raise ImportError(\nImportError: Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?\n"
+    }
+  },
+  "coverage": {},
+  "performance": {}
+}

@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    volumes:
+      # Mount persistent volume for database data
+      - ./data/postgres:/var/lib/postgresql/data
+      # Mount backup directory
+      - ./backups:/backups
+    environment:
+      POSTGRES_DB: linkedin_clone
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - linkedin_network
+
+  backend:
+    build: ./backend
+    restart: always
+    volumes:
+      # Mount backend code (optional for hot reload in development)
+      - ./backend:/app
+      # Persistent media files (user uploads, profile pictures, etc.)
+      - ./data/media:/app/media
+      # Static files
+      - ./data/staticfiles:/app/staticfiles
+      # Logs directory
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=0
+      - DB_HOST=db
+      - DB_NAME=linkedin_clone
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-postgres123}
+      - DB_PORT=5432
+      - INITIALIZE_SAMPLE_DATA=false
+      - DJANGO_SUPERUSER_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - DJANGO_SUPERUSER_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      # Production security settings
+      - ALLOWED_HOSTS=localhost,127.0.0.1,${LIGHTSAIL_IP},${DOMAIN_NAME}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - linkedin_network
+
+  # Optional: Add nginx for production (recommended)
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./data/staticfiles:/var/www/static
+      - ./data/media:/var/www/media
+      # For SSL certificates (if using)
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+    networks:
+      - linkedin_network
+
+  # Database backup service
+  db-backup:
+    image: postgres:15
+    restart: "no"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./backups:/backups
+    environment:
+      POSTGRES_DB: linkedin_clone
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+    command: >
+      sh -c "
+      echo 'Creating database backup...' &&
+      pg_dump -h db -U postgres linkedin_clone > /backups/backup_$(date +%Y%m%d_%H%M%S).sql &&
+      echo 'Backup completed: /backups/backup_$(date +%Y%m%d_%H%M%S).sql' &&
+      # Keep only last 7 days of backups
+      find /backups -name 'backup_*.sql' -mtime +7 -delete
+      "
+    depends_on:
+      - db
+    networks:
+      - linkedin_network
+
+networks:
+  linkedin_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local 

@@ -19,6 +19,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data.pop('password_confirm')
+        # Normalize email to lowercase
+        validated_data['email'] = validated_data['email'].lower().strip()
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -32,6 +34,8 @@ class UserLoginSerializer(serializers.Serializer):
         password = attrs.get('password')
         
         if email and password:
+            # Normalize email to lowercase for case-insensitive login
+            email = email.lower().strip()
             user = authenticate(request=self.context.get('request'),
                               email=email, password=password)
             if not user:
