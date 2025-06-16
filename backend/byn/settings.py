@@ -123,15 +123,29 @@ CELERY_TIMEZONE = 'UTC'
 
 # Database configuration - Railway compatible
 # Railway provides DATABASE_URL automatically for PostgreSQL
-if config('DATABASE_URL', default=''):
+
+# Try multiple ways to get DATABASE_URL for Railway compatibility
+DATABASE_URL = (
+    os.environ.get('DATABASE_URL') or 
+    os.environ.get('POSTGRES_URL') or 
+    config('DATABASE_URL', default='')
+)
+
+if DATABASE_URL:
     # Use Railway's PostgreSQL DATABASE_URL
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+    try:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+                ssl_require=False,  # Railway handles SSL internally
+            )
+        }
+        print(f"✅ Using DATABASE_URL: {DATABASE_URL[:50]}...")  # Debug: show first 50 chars
+    except Exception as e:
+        print(f"❌ Error parsing DATABASE_URL: {e}")
+        raise e
 else:
     # Local development with PostgreSQL
     DATABASES = {
@@ -142,8 +156,12 @@ else:
             'PASSWORD': config('DB_PASSWORD', default='byn_password123'),
             'HOST': config('DB_HOST', default='localhost'),
             'PORT': config('DB_PORT', default='5432'),
+            'OPTIONS': {
+                'connect_timeout': 60,
+            }
         }
     }
+    print("⚠️  No DATABASE_URL found, using local PostgreSQL config")
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -173,9 +191,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images) - Railway/Production optimized
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+
+# Only include STATICFILES_DIRS if the directory exists (to avoid Railway build errors)
+static_dir = BASE_DIR / 'static'
+if static_dir.exists():
+    STATICFILES_DIRS = [static_dir]
+else:
+    STATICFILES_DIRS = []
 
 # WhiteNoise settings for production static file serving
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
