@@ -1,0 +1,52 @@
+# =============================================================================
+# BYN RAILWAY DEPLOYMENT ENVIRONMENT VARIABLES
+# =============================================================================
+# Railway automatically provides DATABASE_URL with PostgreSQL credentials
+# These variables will be automatically injected by Railway
+
+# Django Configuration (set these in Railway's environment variables)
+SECRET_KEY=your-very-secure-secret-key-here-minimum-50-characters-long
+DEBUG=False
+ENVIRONMENT=production
+
+# Database (Railway automatically provides DATABASE_URL)
+# Railway will inject: DATABASE_URL=postgresql://user:password@host:port/database
+# No need to set individual DB variables - Django will parse DATABASE_URL
+
+# Server Configuration
+ALLOWED_HOSTS=*.railway.app,localhost,127.0.0.1
+PORT=8000
+
+# CORS Configuration for Railway + Vercel
+CORS_ALLOWED_ORIGINS=https://your-vercel-app.vercel.app,http://localhost:3000,https://your-railway-backend.railway.app
+
+# Static Files (WhiteNoise handles this)
+STATIC_URL=/static/
+STATIC_ROOT=/app/staticfiles
+
+# Security Settings for Production
+SECURE_SSL_REDIRECT=True
+SECURE_HSTS_SECONDS=31536000
+SECURE_CONTENT_TYPE_NOSNIFF=True
+SECURE_BROWSER_XSS_FILTER=True
+CSRF_COOKIE_SECURE=True
+SESSION_COOKIE_SECURE=True
+
+# Email Configuration (optional)
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+
+# =============================================================================
+# RAILWAY-SPECIFIC NOTES:
+# =============================================================================
+# 1. Set these variables in Railway Dashboard > Variables:
+#    - SECRET_KEY
+#    - DEBUG=False
+#    - ALLOWED_HOSTS (your Railway domain)
+#    - CORS_ALLOWED_ORIGINS (your Vercel frontend URL)
+#
+# 2. Railway automatically provides:
+#    - DATABASE_URL (PostgreSQL connection string)
+#    - PORT (service port)
+#    - RAILWAY_ENVIRONMENT=production
+#
+# 3. Django will automatically use DATABASE_URL if available 

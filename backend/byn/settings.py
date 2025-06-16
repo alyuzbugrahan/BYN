@@ -1,11 +1,12 @@
 """
-Django settings for linkedin_clone project.
+Django settings for BYN (Build Your Network) project.
 """
 
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,9 +17,18 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-producti
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
+# Railway and production-ready allowed hosts
 ALLOWED_HOSTS = [
-    '*',  # Allow all hosts (for development/testing - remove in production)
+    '*',  # Allow all hosts for maximum compatibility
+    'localhost',
+    '127.0.0.1',
+    '.railway.app',  # Railway domains
+    '.vercel.app',   # Vercel domains
 ]
+
+# Get allowed hosts from environment if specified
+if config('ALLOWED_HOSTS', default=''):
+    ALLOWED_HOSTS.extend([host.strip() for host in config('ALLOWED_HOSTS').split(',')])
 
 # Application definition
 
@@ -32,6 +42,7 @@ INSTALLED_APPS = [
     
     # Third party apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'drf_spectacular',
     'django_filters',
@@ -47,6 +58,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -55,7 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'linkedin_clone.urls'
+ROOT_URLCONF = 'byn.urls'
 
 TEMPLATES = [
     {
@@ -73,10 +85,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'linkedin_clone.wsgi.application'
+WSGI_APPLICATION = 'byn.wsgi.application'
 
 # Channels configuration for WebSocket support
-ASGI_APPLICATION = 'linkedin_clone.asgi.application'
+ASGI_APPLICATION = 'byn.asgi.application'
 
 # Redis configuration
 REDIS_URL = 'redis://localhost:6379/0'
@@ -109,25 +121,29 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
-# Database - PostgreSQL with Docker
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='linkedin_clone'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='postgres123'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+# Database configuration - Railway compatible
+# Railway provides DATABASE_URL automatically for PostgreSQL
+if config('DATABASE_URL', default=''):
+    # Use Railway's PostgreSQL DATABASE_URL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=config('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
-
-# For SQLite fallback (development only):
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+else:
+    # Local development with PostgreSQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='linkedin_clone'),
+            'USER': config('DB_USER', default='byn_user'),
+            'PASSWORD': config('DB_PASSWORD', default='byn_password123'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -154,12 +170,15 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images) - Railway/Production optimized
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# WhiteNoise settings for production static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -214,11 +233,21 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# CORS Settings - Maximum flexibility for all platforms
-# Allow all origins for development and maximum compatibility
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS Settings - Production ready with Railway + Vercel support
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
 
-# Additional CORS settings for maximum compatibility
+# Production CORS origins from environment
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://byn-eight.vercel.app",  # Update with your Vercel URL
+]
+
+# Add custom CORS origins from environment
+if config('CORS_ALLOWED_ORIGINS', default=''):
+    custom_origins = [origin.strip() for origin in config('CORS_ALLOWED_ORIGINS').split(',')]
+    CORS_ALLOWED_ORIGINS.extend(custom_origins)
+
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -243,63 +272,42 @@ CORS_ALLOW_METHODS = [
     'HEAD',
 ]
 
-# Specific origins for production (comprehensive list)
-CORS_ALLOWED_ORIGINS = [
-    # Local development (all variations)
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    
-    # Current server (all variations)
-    "http://3.65.227.81:3000",
-    "http://3.65.227.81:8000",
-    "https://3.65.227.81:3000",
-    "https://3.65.227.81:8000",
-    
-    # Vercel deployments (all variations)
-    "https://byn-eight.vercel.app",
-    "http://byn-eight.vercel.app",
-    "https://byn-eight-git-main.vercel.app",
-    "http://byn-eight-git-main.vercel.app",
-    
-    # Production-ready for any domain
-    "https://byn-eight.vercel.app",
-    "http://byn-eight.vercel.app",
-]
-
 CORS_ALLOW_CREDENTIALS = True
 
 # Wildcard patterns for maximum flexibility
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https?://.*\.vercel\.app$",      # Tüm Vercel domains (HTTP/HTTPS)
+    r"^https?://.*\.vercel\.app$",      # All Vercel domains
+    r"^https?://.*\.railway\.app$",     # All Railway domains
     r"^https?://localhost:\d+$",        # Localhost any port
     r"^https?://127\.0\.0\.1:\d+$",     # 127.0.0.1 any port
-    r"^https?://3\.65\.227\.81:\d+$",   # Current server any port
     r"^https?://.*\.netlify\.app$",     # Netlify domains
-    r"^https?://.*\.github\.io$",       # GitHub Pages
 ]
 
-# Security Settings - Flexible for HTTP and HTTPS
+# Security Settings - Production optimized
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-# HTTP/HTTPS flexible settings (no forced HTTPS)
-SECURE_SSL_REDIRECT = False  # Allow HTTP
-SECURE_HSTS_SECONDS = 0  # Disable HSTS for HTTP compatibility
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_HSTS_PRELOAD = False
+# Security settings based on environment
+if not DEBUG and config('RAILWAY_ENVIRONMENT', default='') == 'production':
+    # Production security settings for Railway
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=31536000, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
+    SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+else:
+    # Development settings
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
 
-# Cookie settings - work with both HTTP and HTTPS
-CSRF_COOKIE_SECURE = False  # Allow HTTP
-SESSION_COOKIE_SECURE = False  # Allow HTTP
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
-
-# Disable strict transport security for HTTP compatibility
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-SECURE_REFERRER_POLICY = "same-origin"
 
 # API Documentation
 SPECTACULAR_SETTINGS = {
@@ -310,25 +318,29 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY', '')
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
-# Premium features configuration
-STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
-
-# AI/ML Configuration
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
-
-# Analytics configuration
-ANALYTICS_ENABLED = True
-TRACK_USER_ACTIVITIES = True 
+# Logging configuration for Railway
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': config('DJANGO_LOG_LEVEL', default='INFO'),
+            'propagate': False,
+        },
+    },
+} 
