@@ -86,8 +86,11 @@ class CompanyUnfollowView(generics.DestroyAPIView):
 class FollowedCompaniesView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CompanySerializer
+    queryset = Company.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # for schema generation
+            return Company.objects.none()
         followed = CompanyFollower.objects.filter(user=self.request.user).select_related('company')
         return [follow.company for follow in followed]
 
@@ -123,8 +126,11 @@ class TrendingCompaniesView(generics.ListAPIView):
 class MyCompaniesView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CompanySerializer
+    queryset = Company.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # for schema generation
+            return Company.objects.none()
         return Company.objects.filter(admins=self.request.user)
 
 

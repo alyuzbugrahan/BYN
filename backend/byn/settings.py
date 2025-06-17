@@ -334,9 +334,16 @@ SESSION_COOKIE_HTTPONLY = True
 # API Documentation
 SPECTACULAR_SETTINGS = {
     'TITLE': 'BYN API',
-    'DESCRIPTION': 'A professional networking platform API for Build Your Network (BYN)',
+    'DESCRIPTION': 'Build Your Network - Professional Networking Platform API',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    'ENUM_NAME_OVERRIDES': {
+        'JobApplicationStatusEnum': 'jobs.models.JobApplication.status',
+        'PostStatusEnum': 'feed.models.Post.status',
+    }
 }
 
 # Email Configuration

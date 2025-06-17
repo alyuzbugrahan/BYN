@@ -599,76 +599,76 @@ class FeedAlgorithmViewSet(viewsets.ModelViewSet):
 
 
 # Analytics and Stats Views
-class FeedAnalyticsViewSet(viewsets.ViewSet):
+class FeedAnalyticsViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
-
+    serializer_class = FeedStatsSerializer
+    
+    @extend_schema(responses=FeedStatsSerializer)
     @action(detail=False, methods=['get'])
     def stats(self, request):
-        """Get user's feed statistics"""
+        """Get feed statistics"""
         user = request.user
         
-        # Calculate stats
-        now = timezone.now()
-        today = now.date()
-        week_ago = now - timedelta(days=7)
-        
+        # Get user's posts
         user_posts = Post.objects.filter(author=user)
         
-        stats = {
-            'posts_today': user_posts.filter(created_at__date=today).count(),
-            'posts_this_week': user_posts.filter(created_at__gte=week_ago).count(),
-            'total_likes_received': user_posts.aggregate(
-                total=models.Sum('likes_count')
-            )['total'] or 0,
-            'total_comments_received': user_posts.aggregate(
-                total=models.Sum('comments_count')
-            )['total'] or 0,
-            'total_shares_received': user_posts.aggregate(
-                total=models.Sum('shares_count')
-            )['total'] or 0,
-            'engagement_rate': 0,
-            'top_performing_post': None
-        }
+        # Get posts from today and this week
+        today = timezone.now().date()
+        week_ago = today - timedelta(days=7)
+        
+        posts_today = user_posts.filter(created_at__date=today).count()
+        posts_this_week = user_posts.filter(created_at__date__gte=week_ago).count()
+        
+        # Get engagement stats
+        total_likes = sum(post.likes_count for post in user_posts)
+        total_comments = sum(post.comments_count for post in user_posts)
+        total_shares = sum(post.shares_count for post in user_posts)
         
         # Calculate engagement rate
-        total_views = user_posts.aggregate(total=models.Sum('views_count'))['total'] or 0
-        if total_views > 0:
-            total_engagement = stats['total_likes_received'] + stats['total_comments_received'] + stats['total_shares_received']
-            stats['engagement_rate'] = (total_engagement / total_views) * 100
+        total_posts = user_posts.count()
+        engagement_rate = 0.0
+        if total_posts > 0:
+            total_engagement = total_likes + total_comments + total_shares
+            engagement_rate = (total_engagement / total_posts) * 100
         
         # Get top performing post
-        top_post = user_posts.annotate(
-            engagement_score=F('likes_count') + F('comments_count') * 2 + F('shares_count') * 3
-        ).order_by('-engagement_score').first()
+        top_post = user_posts.order_by('-engagement_score').first()
         
-        if top_post:
-            from .serializers import PostSerializer
-            stats['top_performing_post'] = PostSerializer(top_post, context={'request': request}).data
+        stats = {
+            'posts_today': posts_today,
+            'posts_this_week': posts_this_week,
+            'total_likes_received': total_likes,
+            'total_comments_received': total_comments,
+            'total_shares_received': total_shares,
+            'engagement_rate': round(engagement_rate, 2),
+            'top_performing_post': PostSerializer(top_post, context={'request': request}).data if top_post else None
+        }
         
         serializer = FeedStatsSerializer(stats)
         return Response(serializer.data)
-
+    
+    @extend_schema(responses=TrendingTopicsSerializer)
     @action(detail=False, methods=['get'])
     def trending_topics(self, request):
-        """Get trending topics and user interests"""
-        user = request.user
-        
+        """Get trending topics and hashtags"""
         # Get trending hashtags
-        trending_hashtags = get_trending_hashtags()[:10]
+        trending_hashtags = get_trending_hashtags()
         
-        # Get general trending topics (could be enhanced with ML)
-        trending_topics = [
-            'Artificial Intelligence', 'Remote Work', 'Cryptocurrency',
-            'Sustainability', 'Digital Transformation', 'Leadership',
-            'Innovation', 'Career Development', 'Networking', 'Technology'
+        # Get user interests
+        user_interests = get_user_interests(request.user)
+        
+        # Get general trending topics
+        topics = [
+            'Technology',
+            'Business',
+            'Marketing',
+            'Career Development',
+            'Remote Work'
         ]
-        
-        # Get user interests based on interactions
-        user_interests = get_user_interests(user)
         
         data = {
             'hashtags': trending_hashtags,
-            'topics': trending_topics,
+            'topics': topics,
             'user_interests': user_interests
         }
         
