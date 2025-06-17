@@ -308,7 +308,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 # Security Settings - Production optimized
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'DENY'
 
 # Security settings based on environment
 if not DEBUG and config('RAILWAY_ENVIRONMENT', default='') == 'production':

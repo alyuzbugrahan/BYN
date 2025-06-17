@@ -226,6 +226,39 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             return JobApplication.objects.none()
         return JobApplication.objects.filter(applicant=self.request.user)
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return JobApplicationCreateSerializer
+        elif self.action in ['update', 'partial_update']:
+            return JobApplicationStatusUpdateSerializer
+        return JobApplicationSerializer
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        application = serializer.save()
+        
+        return Response(
+            JobApplicationSerializer(application).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(detail=True, methods=['patch'])
+    def withdraw(self, request, pk=None):
+        """Withdraw a job application"""
+        application = self.get_object()
+        
+        if application.status in ['hired', 'rejected']:
+            return Response(
+                {'error': 'Cannot withdraw application with current status'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        application.status = 'withdrawn'
+        application.save()
+        
+        return Response(JobApplicationSerializer(application).data)
+
 
 @extend_schema_view(
     list=extend_schema(description='List job applications for company jobs')
