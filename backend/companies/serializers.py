@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.text import slugify
+from drf_spectacular.utils import extend_schema_field
 from .models import Company, Industry, CompanyAdmin, CompanyFollower, CompanyLocation
 from accounts.serializers import UserBasicSerializer
 
@@ -62,13 +63,15 @@ class CompanyDetailSerializer(serializers.ModelSerializer):
             'locations', 'is_following', 'job_count'
         ]
     
-    def get_is_following(self, obj):
+    @extend_schema_field(bool)
+    def get_is_following(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return CompanyFollower.objects.filter(company=obj, user=request.user).exists()
         return False
     
-    def get_job_count(self, obj):
+    @extend_schema_field(int)
+    def get_job_count(self, obj) -> int:
         return obj.jobs.filter(is_active=True).count()
 
 
@@ -99,13 +102,15 @@ class CompanyListSerializer(serializers.ModelSerializer):
             'is_following', 'job_count'
         )
     
-    def get_is_following(self, obj):
+    @extend_schema_field(bool)
+    def get_is_following(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return CompanyFollower.objects.filter(company=obj, user=request.user).exists()
         return False
     
-    def get_job_count(self, obj):
+    @extend_schema_field(int)
+    def get_job_count(self, obj) -> int:
         return obj.jobs.filter(is_active=True).count()
 
 
