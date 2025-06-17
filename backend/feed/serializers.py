@@ -88,10 +88,6 @@ class CommentSerializer(serializers.ModelSerializer):
             return obj.author == request.user or request.user.is_staff
         return False
 
-    @extend_schema_field(bool)
-    def is_reply(self, obj) -> bool:
-        return obj.parent is not None
-
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     mentioned_users = serializers.PrimaryKeyRelatedField(
@@ -233,11 +229,6 @@ class PostSerializer(serializers.ModelSerializer):
     @extend_schema_field(float)
     def get_engagement_score(self, obj) -> float:
         return float(obj.engagement_score)
-
-    @extend_schema_field(float)
-    def engagement_rate(self, obj) -> float:
-        total_engagement = obj.likes_count + obj.comments_count + obj.shares_count
-        return round(total_engagement / max(obj.views_count, 1) * 100, 2) if obj.views_count > 0 else 0.0
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
