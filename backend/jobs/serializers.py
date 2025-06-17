@@ -235,4 +235,14 @@ class JobBasicSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.company.logo.url)
             return obj.company.logo.url
-        return None 
+        return None
+
+
+class JobStatsSerializer(serializers.Serializer):
+    total_jobs = serializers.IntegerField()
+    active_jobs = serializers.IntegerField()
+    total_applications = serializers.IntegerField()
+    applications_by_status = serializers.DictField(
+        child=serializers.IntegerField()
+    )
+    recent_applications = JobApplicationSerializer(many=True) 

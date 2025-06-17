@@ -128,4 +128,25 @@ class CompanyFollowerSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CompanyFollower
-        fields = ('id', 'user', 'created_at') 
+        fields = ('id', 'user', 'created_at')
+
+
+class CompanyStatsSerializer(serializers.Serializer):
+    follower_count = serializers.IntegerField()
+    active_jobs = serializers.IntegerField()
+    total_jobs_posted = serializers.IntegerField()
+    company_size = serializers.CharField()
+    founded_year = serializers.IntegerField()
+
+
+class FilterOptionsSerializer(serializers.Serializer):
+    industries = serializers.ListField(child=serializers.CharField())
+    company_sizes = serializers.ListField(child=serializers.CharField())
+
+
+class CompanyFollowSerializer(serializers.Serializer):
+    message = serializers.CharField()
+
+
+class CompanyUnfollowSerializer(serializers.Serializer):
+    message = serializers.CharField() 

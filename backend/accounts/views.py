@@ -18,6 +18,8 @@ from .serializers import (
     ExperienceSerializer,
     EducationSerializer,
     UserSkillSerializer,
+    ChangePasswordSerializer,
+    UserLogoutSerializer,
 )
 
 
@@ -64,10 +66,13 @@ class UserLoginView(generics.GenericAPIView):
 
 class UserLogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserLogoutSerializer
     
     def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         try:
-            refresh_token = request.data["refresh"]
+            refresh_token = serializer.validated_data["refresh"]
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
@@ -85,11 +90,15 @@ class UserProfileView(generics.RetrieveAPIView):
 
 class ChangePasswordView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
     
     def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
         user = request.user
-        old_password = request.data.get('old_password')
-        new_password = request.data.get('new_password')
+        old_password = serializer.validated_data['old_password']
+        new_password = serializer.validated_data['new_password']
         
         if not user.check_password(old_password):
             return Response({'error': 'Invalid old password'}, status=status.HTTP_400_BAD_REQUEST)
