@@ -56,9 +56,12 @@ class CommentSerializer(serializers.ModelSerializer):
     
     @extend_schema_field(List[Dict])
     def get_replies(self, obj) -> List[Dict]:
-        if obj.replies.exists():
-            # Only return first level of replies to avoid deep nesting
-            return CommentSerializer(obj.replies.all()[:5], many=True, context=self.context).data
+        # Avoid errors during schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return []
+        replies_qs = getattr(obj, 'replies', None)
+        if replies_qs is not None and hasattr(replies_qs, 'all'):
+            return CommentSerializer(replies_qs.all()[:5], many=True, context=self.context).data
         return []
     
     @extend_schema_field(bool)
