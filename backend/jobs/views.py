@@ -18,6 +18,7 @@ from .serializers import (
     JobApplicationCreateSerializer,
     JobApplicationStatusUpdateSerializer,
     SavedJobSerializer,
+    JobStatsSerializer,
 )
 from .filters import JobFilter
 from .permissions import IsJobPosterOrCompanyAdmin
@@ -312,34 +313,25 @@ class SavedJobsView(generics.ListAPIView):
 class JobStatsView(generics.RetrieveAPIView):
     """Get job statistics for dashboard"""
     permission_classes = [IsAuthenticated]
+    serializer_class = JobStatsSerializer
     
-    def get(self, request, *args, **kwargs):
-        user = request.user
+    def get_object(self):
+        # Get jobs posted by user or from companies they admin
+        jobs = Job.objects.filter(
+            Q(posted_by=self.request.user) |
+            Q(company__admins=self.request.user)
+        ).distinct()
         
-        # Get user's job-related statistics
-        stats = {
-            'applications_sent': JobApplication.objects.filter(applicant=user).count(),
-            'applications_pending': JobApplication.objects.filter(
-                applicant=user, status='submitted'
-            ).count(),
-            'applications_under_review': JobApplication.objects.filter(
-                applicant=user, status='under_review'
-            ).count(),
-            'saved_jobs': SavedJob.objects.filter(user=user).count(),
-            'jobs_posted': Job.objects.filter(posted_by=user).count(),
-            'active_jobs_posted': Job.objects.filter(posted_by=user, is_active=True).count(),
-        }
+        # Get applications for these jobs
+        applications = JobApplication.objects.filter(job__in=jobs)
         
-        # If user has posted jobs, get application stats
-        if stats['jobs_posted'] > 0:
-            user_jobs = Job.objects.filter(posted_by=user)
-            stats.update({
-                'total_applications_received': JobApplication.objects.filter(
-                    job__in=user_jobs
-                ).count(),
-                'new_applications': JobApplication.objects.filter(
-                    job__in=user_jobs, status='submitted'
-                ).count(),
-            })
+        # Count applications by status
+        status_counts = dict(applications.values('status').annotate(count=Count('id')).values_list('status', 'count'))
         
-        return Response(stats) 
+        return {
+            'total_jobs': jobs.count(),
+            'active_jobs': jobs.filter(is_active=True).count(),
+            'total_applications': applications.count(),
+            'applications_by_status': status_counts,
+            'recent_applications': applications.order_by('-applied_date')[:5]
+        } 

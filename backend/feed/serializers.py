@@ -230,7 +230,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(float)
     def engagement_rate(self, obj) -> float:
-        return float(obj.engagement_rate)
+        total_engagement = obj.likes_count + obj.comments_count + obj.shares_count
+        return round(total_engagement / max(obj.views_count, 1) * 100, 2) if obj.views_count > 0 else 0.0
 
 
 class PostCreateSerializer(serializers.ModelSerializer):

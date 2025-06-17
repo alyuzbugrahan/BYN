@@ -176,4 +176,13 @@ class SkillEndorsementSerializer(serializers.ModelSerializer):
     class Meta:
         model = SkillEndorsement
         fields = ('id', 'endorser', 'created_at')
-        read_only_fields = ('created_at',) 
+        read_only_fields = ('created_at',)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
+class UserLogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=True) 

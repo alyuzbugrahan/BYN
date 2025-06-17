@@ -7,19 +7,19 @@ urlpatterns = [
     path('companies/<int:id>/', views.CompanyDetailView.as_view(), name='company-detail'),
     
     # Company following
-    path('companies/<int:company_id>/follow/', views.follow_company, name='follow-company'),
-    path('companies/<int:company_id>/unfollow/', views.unfollow_company, name='unfollow-company'),
-    path('followed/', views.followed_companies, name='followed-companies'),
+    path('companies/<int:company_id>/follow/', views.CompanyFollowView.as_view(), name='follow-company'),
+    path('companies/<int:company_id>/unfollow/', views.CompanyUnfollowView.as_view(), name='unfollow-company'),
+    path('followed/', views.FollowedCompaniesView.as_view(), name='followed-companies'),
     
     # Company statistics and analytics
-    path('companies/<int:company_id>/stats/', views.company_stats, name='company-stats'),
+    path('companies/<int:company_id>/stats/', views.CompanyStatsView.as_view(), name='company-stats'),
     
     # Trending and discovery
-    path('trending/', views.trending_companies, name='trending-companies'),
+    path('trending/', views.TrendingCompaniesView.as_view(), name='trending-companies'),
     
     # Admin companies
-    path('companies/my-companies/', views.my_companies, name='my-companies'),
+    path('companies/my-companies/', views.MyCompaniesView.as_view(), name='my-companies'),
     
     # Filter options
-    path('filter-options/', views.filter_options, name='filter-options'),
+    path('filter-options/', views.FilterOptionsView.as_view(), name='filter-options'),
 ] 
