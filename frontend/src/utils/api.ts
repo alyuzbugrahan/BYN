@@ -222,7 +222,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           console.log('🔄 Attempting to refresh token...');
-          const response = await axios.post(`${getAPIBaseURL()}/auth/token/refresh/`, {
+          const response = await axios.post(`${getAPIBaseURL()}/api/auth/token/refresh/`, {
             refresh: refreshToken
           });
           
@@ -255,22 +255,22 @@ api.interceptors.response.use(
 // Authentication API
 export const authAPI = {
   login: async (credentials: LoginCredentials): Promise<AuthTokens> => {
-    const response: AxiosResponse<AuthTokens> = await api.post('/auth/login/', credentials);
+    const response: AxiosResponse<AuthTokens> = await api.post('/api/auth/login/', credentials);
     return response.data;
   },
   
   register: async (userData: RegisterData): Promise<User> => {
-    const response: AxiosResponse<User> = await api.post('/auth/register/', userData);
+    const response: AxiosResponse<User> = await api.post('/api/auth/register/', userData);
     return response.data;
   },
   
   logout: async (): Promise<void> => {
-    await api.post('/auth/logout/');
+    await api.post('/api/auth/logout/');
     tokenManager.clearTokens();
   },
   
   getProfile: async (): Promise<User> => {
-    const response: AxiosResponse<User> = await api.get('/auth/profile/');
+    const response: AxiosResponse<User> = await api.get('/api/auth/profile/');
     return response.data;
   },
   
@@ -280,7 +280,7 @@ export const authAPI = {
   },
   
   refreshToken: async (refreshToken: string): Promise<AuthTokens> => {
-    const response: AxiosResponse<AuthTokens> = await api.post('/auth/token/refresh/', {
+    const response: AxiosResponse<AuthTokens> = await api.post('/api/auth/token/refresh/', {
       refresh: refreshToken
     });
     return response.data;
