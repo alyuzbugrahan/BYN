@@ -15,8 +15,14 @@ def health_check(request):
         'message': 'Build Your Network is running successfully!'
     })
 
+@csrf_exempt
+def railway_health(request):
+    """Dedicated health endpoint for Railway without redirects"""
+    return JsonResponse({'status': 'ok'}, status=200)
+
 urlpatterns = [
-    # Health check for Railway
+    # Health checks
+    path('health/', railway_health, name='railway_health'),
     path('api/', health_check, name='health_check'),
     
     # Admin interface
