@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q, F, Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from .models import Job, JobCategory, JobApplication, SavedJob, JobView
 from .serializers import (
     JobListSerializer,
@@ -208,47 +209,27 @@ class JobCategoryViewSet(viewsets.ModelViewSet):
         return [IsAuthenticatedOrReadOnly()]
 
 
+@extend_schema_view(
+    list=extend_schema(description='List job applications'),
+    retrieve=extend_schema(description='Get a specific job application'),
+    create=extend_schema(description='Create a job application'),
+    update=extend_schema(description='Update a job application'),
+    withdraw=extend_schema(description='Withdraw a job application')
+)
 class JobApplicationViewSet(viewsets.ModelViewSet):
     serializer_class = JobApplicationSerializer
     permission_classes = [IsAuthenticated]
+    queryset = JobApplication.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return JobApplication.objects.none()
         return JobApplication.objects.filter(applicant=self.request.user)
-    
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return JobApplicationCreateSerializer
-        elif self.action in ['update', 'partial_update']:
-            return JobApplicationStatusUpdateSerializer
-        return JobApplicationSerializer
-    
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        application = serializer.save()
-        
-        return Response(
-            JobApplicationSerializer(application).data,
-            status=status.HTTP_201_CREATED
-        )
-    
-    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
-    def withdraw(self, request, pk=None):
-        """Withdraw a job application"""
-        application = self.get_object()
-        
-        if application.status in ['hired', 'rejected']:
-            return Response(
-                {'error': 'Cannot withdraw application with current status'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        application.status = 'withdrawn'
-        application.save()
-        
-        return Response(JobApplicationSerializer(application).data)
 
 
+@extend_schema_view(
+    list=extend_schema(description='List job applications for company jobs')
+)
 class CompanyJobApplicationsView(generics.ListAPIView):
     """View for company admins to see applications for their jobs"""
     serializer_class = JobApplicationSerializer
@@ -258,17 +239,16 @@ class CompanyJobApplicationsView(generics.ListAPIView):
     filterset_fields = ['status', 'job']
     ordering_fields = ['applied_date', 'status']
     ordering = ['-applied_date']
+    queryset = JobApplication.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return JobApplication.objects.none()
         # Get jobs posted by current user or jobs from companies they admin
-        user_jobs = Job.objects.filter(
-            Q(posted_by=self.request.user) |
-            Q(company__admins=self.request.user)
-        )
-        
-        return JobApplication.objects.filter(job__in=user_jobs).select_related(
-            'job', 'applicant'
-        )
+        return JobApplication.objects.filter(
+            Q(job__posted_by=self.request.user) |
+            Q(job__company__admins=self.request.user)
+        ).select_related('job', 'applicant')
 
 
 class JobApplicationDetailView(generics.RetrieveUpdateAPIView):
