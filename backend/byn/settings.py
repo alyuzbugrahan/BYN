@@ -123,15 +123,29 @@ CELERY_TIMEZONE = 'UTC'
 
 # Database configuration - Railway compatible
 # Railway provides DATABASE_URL automatically for PostgreSQL
-if config('DATABASE_URL', default=''):
+
+# Try multiple ways to get DATABASE_URL for Railway compatibility
+DATABASE_URL = (
+    os.environ.get('DATABASE_URL') or 
+    os.environ.get('POSTGRES_URL') or 
+    config('DATABASE_URL', default='')
+)
+
+if DATABASE_URL:
     # Use Railway's PostgreSQL DATABASE_URL
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+    try:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+                ssl_require=False,  # Railway handles SSL internally
+            )
+        }
+        print(f"✅ Using DATABASE_URL: {DATABASE_URL[:50]}...")  # Debug: show first 50 chars
+    except Exception as e:
+        print(f"❌ Error parsing DATABASE_URL: {e}")
+        raise e
 else:
     # Local development with PostgreSQL
     DATABASES = {
@@ -142,8 +156,12 @@ else:
             'PASSWORD': config('DB_PASSWORD', default='byn_password123'),
             'HOST': config('DB_HOST', default='localhost'),
             'PORT': config('DB_PORT', default='5432'),
+            'OPTIONS': {
+                'connect_timeout': 60,
+            }
         }
     }
+    print("⚠️  No DATABASE_URL found, using local PostgreSQL config")
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -173,9 +191,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images) - Railway/Production optimized
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+
+# Only include STATICFILES_DIRS if the directory exists (to avoid Railway build errors)
+static_dir = BASE_DIR / 'static'
+if static_dir.exists():
+    STATICFILES_DIRS = [static_dir]
+else:
+    STATICFILES_DIRS = []
 
 # WhiteNoise settings for production static file serving
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -286,17 +308,18 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 # Security Settings - Production optimized
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'DENY'
 
 # Security settings based on environment
 if not DEBUG and config('RAILWAY_ENVIRONMENT', default='') == 'production':
     # Production security settings for Railway
-    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
-    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=31536000, cast=int)
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
-    SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+    # Disable SSL redirect for Railway healthchecks
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+    SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 else:
     # Development settings
     SECURE_SSL_REDIRECT = False
@@ -312,9 +335,16 @@ SESSION_COOKIE_HTTPONLY = True
 # API Documentation
 SPECTACULAR_SETTINGS = {
     'TITLE': 'BYN API',
-    'DESCRIPTION': 'A professional networking platform API for Build Your Network (BYN)',
+    'DESCRIPTION': 'Build Your Network - Professional Networking Platform API',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    'ENUM_NAME_OVERRIDES': {
+        'JobApplicationStatusEnum': 'jobs.models.JobApplication.APPLICATION_STATUS',
+        'ConnectionRequestStatusEnum': 'connections.models.ConnectionRequest.REQUEST_STATUS',
+    }
 }
 
 # Email Configuration

@@ -25,14 +25,12 @@ COPY . /app/
 # Create media directory
 RUN mkdir -p /app/media
 
-# Make entrypoint script executable
+# Make startup scripts executable
 RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/start.sh
 
-# Expose port
-EXPOSE 8000
+# Expose port (Railway will override this)
+EXPOSE $PORT
 
-# Set entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Default command
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"] 
+# Use our production startup script
+CMD ["/app/start.sh"] 

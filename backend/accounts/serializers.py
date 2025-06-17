@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from drf_spectacular.utils import extend_schema_field
 from .models import User, Experience, Education, Skill, UserSkill, SkillEndorsement
 
 
@@ -102,7 +103,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
                  'privacy_show_connections', 'date_joined', 'experiences', 'education', 'user_skills')
         read_only_fields = ('id', 'email', 'is_verified', 'is_company_user', 'date_joined')
     
-    def get_profile_picture(self, obj):
+    @extend_schema_field(str)
+    def get_profile_picture(self, obj) -> str:
         if obj.profile_picture:
             request = self.context.get('request')
             if request:
@@ -131,10 +133,12 @@ class UserBasicSerializer(serializers.ModelSerializer):
             'headline', 'current_position', 'profile_picture_url'
         ]
     
-    def get_full_name(self, obj):
+    @extend_schema_field(str)
+    def get_full_name(self, obj) -> str:
         return obj.full_name
     
-    def get_profile_picture_url(self, obj):
+    @extend_schema_field(str)
+    def get_profile_picture_url(self, obj) -> str:
         if obj.profile_picture:
             request = self.context.get('request')
             if request:
@@ -156,7 +160,8 @@ class UserSearchSerializer(serializers.ModelSerializer):
                  'location', 'profile_picture', 'industry', 'is_verified',
                  'mutual_connections_count')
     
-    def get_profile_picture(self, obj):
+    @extend_schema_field(str)
+    def get_profile_picture(self, obj) -> str:
         if obj.profile_picture:
             request = self.context.get('request')
             if request:
@@ -171,4 +176,13 @@ class SkillEndorsementSerializer(serializers.ModelSerializer):
     class Meta:
         model = SkillEndorsement
         fields = ('id', 'endorser', 'created_at')
-        read_only_fields = ('created_at',) 
+        read_only_fields = ('created_at',)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
+class UserLogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=True) 

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.utils.text import slugify
+from drf_spectacular.utils import extend_schema_field
+from typing import Dict, Optional, Union
 from .models import Job, JobCategory, JobApplication, SavedJob
 from accounts.serializers import UserBasicSerializer, SkillSerializer
 from companies.serializers import CompanyBasicSerializer
@@ -35,13 +37,15 @@ class JobListSerializer(serializers.ModelSerializer):
             'created_at', 'is_saved', 'has_applied'
         )
     
-    def get_is_saved(self, obj):
+    @extend_schema_field(bool)
+    def get_is_saved(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return SavedJob.objects.filter(user=request.user, job=obj).exists()
         return False
     
-    def get_has_applied(self, obj):
+    @extend_schema_field(bool)
+    def get_has_applied(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return JobApplication.objects.filter(applicant=request.user, job=obj).exists()
@@ -70,13 +74,15 @@ class JobDetailSerializer(serializers.ModelSerializer):
             'application_count', 'created_at', 'updated_at', 'is_saved', 'has_applied'
         )
     
-    def get_is_saved(self, obj):
+    @extend_schema_field(bool)
+    def get_is_saved(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return SavedJob.objects.filter(user=request.user, job=obj).exists()
         return False
     
-    def get_has_applied(self, obj):
+    @extend_schema_field(bool)
+    def get_has_applied(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return JobApplication.objects.filter(applicant=request.user, job=obj).exists()
@@ -218,14 +224,25 @@ class JobBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = [
-            'id', 'title', 'company_name', 'company_logo', 
-            'location', 'job_type', 'salary_min', 'salary_max'
+            'id', 'title', 'company_name', 'company_logo',
+            'location', 'job_type', 'experience_level'
         ]
     
-    def get_company_logo(self, obj):
+    @extend_schema_field(str)
+    def get_company_logo(self, obj) -> Optional[str]:
         if obj.company and obj.company.logo:
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(obj.company.logo.url)
             return obj.company.logo.url
-        return None 
+        return None
+
+
+class JobStatsSerializer(serializers.Serializer):
+    total_jobs = serializers.IntegerField()
+    active_jobs = serializers.IntegerField()
+    total_applications = serializers.IntegerField()
+    applications_by_status = serializers.DictField(
+        child=serializers.IntegerField()
+    )
+    recent_applications = JobApplicationSerializer(many=True) 

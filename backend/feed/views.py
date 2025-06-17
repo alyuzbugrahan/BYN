@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import (
     Post, Comment, PostLike, CommentLike, PostShare, 
@@ -494,16 +495,23 @@ class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
         return paginator.get_paginated_response(serializer.data)
 
 
+@extend_schema_view(
+    list=extend_schema(description='List notifications'),
+    retrieve=extend_schema(description='Get a specific notification'),
+    mark_read=extend_schema(description='Mark a notification as read'),
+    mark_all_read=extend_schema(description='Mark all notifications as read')
+)
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = FeedPagination
     ordering = ['-created_at']
-
+    queryset = Notification.objects.none()  # Default empty queryset
+    
     def get_queryset(self):
-        return Notification.objects.filter(
-            recipient=self.request.user
-        ).select_related('sender', 'post', 'comment')
+        if getattr(self, 'swagger_fake_view', False):
+            return Notification.objects.none()
+        return Notification.objects.filter(recipient=self.request.user)
 
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):
@@ -528,23 +536,37 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'unread_count': count})
 
 
+@extend_schema_view(
+    list=extend_schema(description='List saved posts'),
+    retrieve=extend_schema(description='Get a specific saved post')
+)
 class SavedPostViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SavedPostSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = FeedPagination
     ordering = ['-saved_at']
-
+    queryset = SavedPost.objects.none()  # Default empty queryset
+    
     def get_queryset(self):
-        return SavedPost.objects.filter(
-            user=self.request.user
-        ).select_related('post__author', 'post__shared_job__company')
+        if getattr(self, 'swagger_fake_view', False):
+            return SavedPost.objects.none()
+        return SavedPost.objects.filter(user=self.request.user).select_related('post', 'post__author')
 
 
+@extend_schema_view(
+    list=extend_schema(description='List feed algorithms'),
+    create=extend_schema(description='Create a feed algorithm'),
+    update=extend_schema(description='Update a feed algorithm'),
+    destroy=extend_schema(description='Delete a feed algorithm')
+)
 class FeedAlgorithmViewSet(viewsets.ModelViewSet):
     serializer_class = FeedAlgorithmSerializer
     permission_classes = [IsAuthenticated]
-
+    queryset = FeedAlgorithm.objects.none()  # Default empty queryset
+    
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return FeedAlgorithm.objects.none()
         return FeedAlgorithm.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):
@@ -577,76 +599,76 @@ class FeedAlgorithmViewSet(viewsets.ModelViewSet):
 
 
 # Analytics and Stats Views
-class FeedAnalyticsViewSet(viewsets.ViewSet):
+class FeedAnalyticsViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
-
+    serializer_class = FeedStatsSerializer
+    
+    @extend_schema(responses=FeedStatsSerializer)
     @action(detail=False, methods=['get'])
     def stats(self, request):
-        """Get user's feed statistics"""
+        """Get feed statistics"""
         user = request.user
         
-        # Calculate stats
-        now = timezone.now()
-        today = now.date()
-        week_ago = now - timedelta(days=7)
-        
+        # Get user's posts
         user_posts = Post.objects.filter(author=user)
         
-        stats = {
-            'posts_today': user_posts.filter(created_at__date=today).count(),
-            'posts_this_week': user_posts.filter(created_at__gte=week_ago).count(),
-            'total_likes_received': user_posts.aggregate(
-                total=models.Sum('likes_count')
-            )['total'] or 0,
-            'total_comments_received': user_posts.aggregate(
-                total=models.Sum('comments_count')
-            )['total'] or 0,
-            'total_shares_received': user_posts.aggregate(
-                total=models.Sum('shares_count')
-            )['total'] or 0,
-            'engagement_rate': 0,
-            'top_performing_post': None
-        }
+        # Get posts from today and this week
+        today = timezone.now().date()
+        week_ago = today - timedelta(days=7)
+        
+        posts_today = user_posts.filter(created_at__date=today).count()
+        posts_this_week = user_posts.filter(created_at__date__gte=week_ago).count()
+        
+        # Get engagement stats
+        total_likes = sum(post.likes_count for post in user_posts)
+        total_comments = sum(post.comments_count for post in user_posts)
+        total_shares = sum(post.shares_count for post in user_posts)
         
         # Calculate engagement rate
-        total_views = user_posts.aggregate(total=models.Sum('views_count'))['total'] or 0
-        if total_views > 0:
-            total_engagement = stats['total_likes_received'] + stats['total_comments_received'] + stats['total_shares_received']
-            stats['engagement_rate'] = (total_engagement / total_views) * 100
+        total_posts = user_posts.count()
+        engagement_rate = 0.0
+        if total_posts > 0:
+            total_engagement = total_likes + total_comments + total_shares
+            engagement_rate = (total_engagement / total_posts) * 100
         
         # Get top performing post
-        top_post = user_posts.annotate(
-            engagement_score=F('likes_count') + F('comments_count') * 2 + F('shares_count') * 3
-        ).order_by('-engagement_score').first()
+        top_post = user_posts.order_by('-engagement_score').first()
         
-        if top_post:
-            from .serializers import PostSerializer
-            stats['top_performing_post'] = PostSerializer(top_post, context={'request': request}).data
+        stats = {
+            'posts_today': posts_today,
+            'posts_this_week': posts_this_week,
+            'total_likes_received': total_likes,
+            'total_comments_received': total_comments,
+            'total_shares_received': total_shares,
+            'engagement_rate': round(engagement_rate, 2),
+            'top_performing_post': PostSerializer(top_post, context={'request': request}).data if top_post else None
+        }
         
         serializer = FeedStatsSerializer(stats)
         return Response(serializer.data)
-
+    
+    @extend_schema(responses=TrendingTopicsSerializer)
     @action(detail=False, methods=['get'])
     def trending_topics(self, request):
-        """Get trending topics and user interests"""
-        user = request.user
-        
+        """Get trending topics and hashtags"""
         # Get trending hashtags
-        trending_hashtags = get_trending_hashtags()[:10]
+        trending_hashtags = get_trending_hashtags()
         
-        # Get general trending topics (could be enhanced with ML)
-        trending_topics = [
-            'Artificial Intelligence', 'Remote Work', 'Cryptocurrency',
-            'Sustainability', 'Digital Transformation', 'Leadership',
-            'Innovation', 'Career Development', 'Networking', 'Technology'
+        # Get user interests
+        user_interests = get_user_interests(request.user)
+        
+        # Get general trending topics
+        topics = [
+            'Technology',
+            'Business',
+            'Marketing',
+            'Career Development',
+            'Remote Work'
         ]
-        
-        # Get user interests based on interactions
-        user_interests = get_user_interests(user)
         
         data = {
             'hashtags': trending_hashtags,
-            'topics': trending_topics,
+            'topics': topics,
             'user_interests': user_interests
         }
         

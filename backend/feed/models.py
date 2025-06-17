@@ -77,10 +77,10 @@ class Post(models.Model):
         return f"/feed/post/{self.pk}/"
     
     @property
-    def engagement_rate(self):
+    def engagement_rate(self) -> float:
         """Calculate engagement rate as percentage"""
         if self.views_count == 0:
-            return 0
+            return 0.0
         total_engagement = self.likes_count + self.comments_count + self.shares_count
         return (total_engagement / self.views_count) * 100
     
@@ -141,7 +141,7 @@ class Comment(models.Model):
         return f"Comment by {self.author.full_name} on {self.post}"
     
     @property
-    def is_reply(self):
+    def is_reply(self) -> bool:
         return self.parent is not None
 
 
