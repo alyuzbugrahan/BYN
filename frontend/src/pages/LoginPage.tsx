@@ -170,7 +170,7 @@ const LoginPage: React.FC = () => {
               onClick={async () => {
                 console.log('🔍 Testing API connection...');
                 try {
-                  const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://3.71.10.131:8000';
+                  const apiUrl = process.env.REACT_APP_API_BASE_URL || 'byn-build-your-network-platform.railway.internal';
                   const response = await fetch(`${apiUrl}/api/auth/login/`, {
                     method: 'POST',
                     headers: {
