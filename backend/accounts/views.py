@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from django.contrib.auth import authenticate
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from .models import User, Experience, Education, UserSkill
 from .serializers import (
     UserRegistrationSerializer,
@@ -145,33 +146,60 @@ class UserSearchView(generics.ListAPIView):
         ).exclude(id=self.request.user.id)[:20]
 
 
+@extend_schema_view(
+    list=extend_schema(description='List experiences for the current user'),
+    create=extend_schema(description='Create a new experience'),
+    update=extend_schema(description='Update an experience'),
+    destroy=extend_schema(description='Delete an experience')
+)
 class ExperienceViewSet(viewsets.ModelViewSet):
     serializer_class = ExperienceSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Experience.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # for schema generation
+            return Experience.objects.none()
         return Experience.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
 
+@extend_schema_view(
+    list=extend_schema(description='List education entries for the current user'),
+    create=extend_schema(description='Create a new education entry'),
+    update=extend_schema(description='Update an education entry'),
+    destroy=extend_schema(description='Delete an education entry')
+)
 class EducationViewSet(viewsets.ModelViewSet):
     serializer_class = EducationSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Education.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # for schema generation
+            return Education.objects.none()
         return Education.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
 
+@extend_schema_view(
+    list=extend_schema(description='List skills for the current user'),
+    create=extend_schema(description='Create a new skill'),
+    update=extend_schema(description='Update a skill'),
+    destroy=extend_schema(description='Delete a skill')
+)
 class UserSkillViewSet(viewsets.ModelViewSet):
     serializer_class = UserSkillSerializer
     permission_classes = [IsAuthenticated]
+    queryset = UserSkill.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # for schema generation
+            return UserSkill.objects.none()
         return UserSkill.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):

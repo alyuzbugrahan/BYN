@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from accounts.serializers import UserBasicSerializer
 from .models import ConnectionRequest, Connection, Follow, UserRecommendation, NetworkMetrics
 
@@ -26,7 +27,8 @@ class ConnectionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'user1', 'user2', 'connection_request', 'interaction_count', 
                            'last_interaction', 'connected_at']
     
-    def get_other_user(self, obj):
+    @extend_schema_field(UserBasicSerializer)
+    def get_other_user(self, obj) -> dict:
         """Get the other user in the connection relative to the current user"""
         request = self.context.get('request')
         if request and request.user:

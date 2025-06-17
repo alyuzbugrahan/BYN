@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.db import IntegrityError, transaction
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from accounts.models import User
 from .models import ConnectionRequest, Connection, Follow, UserRecommendation, NetworkMetrics
@@ -24,12 +25,21 @@ class ConnectionPagination(PageNumberPagination):
     max_page_size = 100
 
 
+@extend_schema_view(
+    list=extend_schema(description='List connection requests'),
+    create=extend_schema(description='Create a connection request'),
+    respond=extend_schema(description='Accept or decline a connection request'),
+    withdraw=extend_schema(description='Withdraw a connection request')
+)
 class ConnectionRequestViewSet(viewsets.ModelViewSet):
     serializer_class = ConnectionRequestSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = ConnectionPagination
+    queryset = ConnectionRequest.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return ConnectionRequest.objects.none()
         user = self.request.user
         return ConnectionRequest.objects.filter(
             Q(sender=user) | Q(receiver=user)
@@ -151,12 +161,20 @@ class ConnectionRequestViewSet(viewsets.ModelViewSet):
         return Response({'status': 'withdrawn', 'message': 'Connection request withdrawn'})
 
 
+@extend_schema_view(
+    list=extend_schema(description='List connections'),
+    retrieve=extend_schema(description='Get a specific connection'),
+    remove=extend_schema(description='Remove a connection')
+)
 class ConnectionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ConnectionSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = ConnectionPagination
+    queryset = Connection.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Connection.objects.none()
         user = self.request.user
         return Connection.objects.filter(
             Q(user1=user) | Q(user2=user)
@@ -174,12 +192,22 @@ class ConnectionViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'status': 'removed', 'message': 'Connection removed'})
 
 
+@extend_schema_view(
+    list=extend_schema(description='List follows'),
+    create=extend_schema(description='Follow a user'),
+    unfollow=extend_schema(description='Unfollow a user'),
+    followers=extend_schema(description='List followers'),
+    following=extend_schema(description='List following')
+)
 class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = ConnectionPagination
+    queryset = Follow.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Follow.objects.none()
         user = self.request.user
         return Follow.objects.filter(follower=user).select_related('following').order_by('-created_at')
     
@@ -271,16 +299,24 @@ class FollowViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+@extend_schema_view(
+    list=extend_schema(description='List user recommendations'),
+    retrieve=extend_schema(description='Get a specific recommendation'),
+    dismiss=extend_schema(description='Dismiss a recommendation')
+)
 class UserRecommendationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserRecommendationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = ConnectionPagination
+    queryset = UserRecommendation.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return UserRecommendation.objects.none()
         return UserRecommendation.objects.filter(
             user=self.request.user,
             is_dismissed=False
-        ).select_related('recommended_user').order_by('-score', '-created_at')
+        ).select_related('recommended_user').order_by('-score')
     
     @action(detail=True, methods=['post'])
     def dismiss(self, request, pk=None):
@@ -293,11 +329,18 @@ class UserRecommendationViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'status': 'dismissed', 'message': 'Recommendation dismissed'})
 
 
+@extend_schema_view(
+    list=extend_schema(description='List network metrics'),
+    my_metrics=extend_schema(description='Get current user network metrics')
+)
 class NetworkMetricsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = NetworkMetricsSerializer
     permission_classes = [IsAuthenticated]
+    queryset = NetworkMetrics.objects.none()  # Default empty queryset
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return NetworkMetrics.objects.none()
         return NetworkMetrics.objects.filter(user=self.request.user)
     
     @action(detail=False, methods=['get'])
