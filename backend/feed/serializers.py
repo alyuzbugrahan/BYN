@@ -43,6 +43,7 @@ class CommentSerializer(serializers.ModelSerializer):
     user_has_liked = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
     can_delete = serializers.SerializerMethodField()
+    is_reply = serializers.SerializerMethodField()
     
     class Meta:
         model = Comment
@@ -87,6 +88,11 @@ class CommentSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.author == request.user or request.user.is_staff
         return False
+    
+    @extend_schema_field(bool)
+    def get_is_reply(self, obj) -> bool:
+        """Check if this comment is a reply to another comment"""
+        return obj.is_reply()
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -229,6 +235,11 @@ class PostSerializer(serializers.ModelSerializer):
     @extend_schema_field(float)
     def get_engagement_score(self, obj) -> float:
         return float(obj.engagement_score)
+    
+    @extend_schema_field(float)
+    def get_engagement_rate(self, obj) -> float:
+        """Calculate engagement rate as a percentage"""
+        return float(obj.engagement_rate) if hasattr(obj, 'engagement_rate') else 0.0
 
 
 class PostCreateSerializer(serializers.ModelSerializer):

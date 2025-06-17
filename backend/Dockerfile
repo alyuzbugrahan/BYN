@@ -29,8 +29,13 @@ RUN mkdir -p /app/media
 RUN chmod +x /app/entrypoint.sh
 RUN chmod +x /app/start.sh
 
+# Create a non-root user for security
+RUN adduser --disabled-password --gecos '' appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
 # Expose port (Railway will override this)
-EXPOSE $PORT
+EXPOSE 8000
 
 # Use our production startup script
-CMD ["/app/start.sh"] 
+CMD ["./start.sh"] 

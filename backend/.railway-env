@@ -1,0 +1,31 @@
+# Railway Environment Variables Template
+# Copy these to your Railway project's environment variables
+
+# Django Settings
+DEBUG=False
+SECRET_KEY=your-super-secret-key-here
+DJANGO_LOG_LEVEL=INFO
+
+# Database (Railway provides DATABASE_URL automatically)
+# DATABASE_URL will be set automatically by Railway
+
+# CORS Settings
+CORS_ALLOW_ALL_ORIGINS=True
+CORS_ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app
+
+# Security (Optional for Railway)
+SECURE_SSL_REDIRECT=False
+SECURE_HSTS_SECONDS=0
+CSRF_COOKIE_SECURE=False
+SESSION_COOKIE_SECURE=False
+
+# Railway specific
+PORT=8000
+RAILWAY_ENVIRONMENT=production
+
+# Optional: Sample Data
+INITIALIZE_SAMPLE_DATA=false
+
+# Optional: Superuser creation
+# DJANGO_SUPERUSER_EMAIL=admin@example.com
+# DJANGO_SUPERUSER_PASSWORD=your-admin-password 

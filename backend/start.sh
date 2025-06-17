@@ -57,13 +57,20 @@ echo "🎉 Starting Gunicorn server on port $PORT..."
 echo "=================================================="
 
 # Start the application with Gunicorn
+echo "🚀 Starting Gunicorn server..."
+echo "   Binding to: 0.0.0.0:$PORT"
+echo "   Workers: 3"
+echo "   WSGI Module: byn.wsgi:application"
+
 exec gunicorn byn.wsgi:application \
     --bind 0.0.0.0:$PORT \
     --workers 3 \
+    --worker-class sync \
     --timeout 120 \
     --max-requests 1000 \
     --max-requests-jitter 100 \
     --preload \
     --log-level info \
     --access-logfile - \
-    --error-logfile - 
+    --error-logfile - \
+    --capture-output 
