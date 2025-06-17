@@ -341,8 +341,8 @@ SPECTACULAR_SETTINGS = {
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
     'ENUM_NAME_OVERRIDES': {
-        'JobApplicationStatusEnum': 'jobs.models.JobApplication.status',
-        'ConnectionStatusEnum': 'connections.models.Connection.status',
+        'JobApplicationStatusEnum': 'jobs.models.JobApplication.APPLICATION_STATUS',
+        'ConnectionRequestStatusEnum': 'connections.models.ConnectionRequest.REQUEST_STATUS',
     }
 }
 
