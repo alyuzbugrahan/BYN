@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import (
     Post, Comment, PostLike, CommentLike, PostShare, 
@@ -494,16 +495,23 @@ class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
         return paginator.get_paginated_response(serializer.data)
 
 
+@extend_schema_view(
+    list=extend_schema(description='List notifications'),
+    retrieve=extend_schema(description='Get a specific notification'),
+    mark_read=extend_schema(description='Mark a notification as read'),
+    mark_all_read=extend_schema(description='Mark all notifications as read')
+)
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = FeedPagination
     ordering = ['-created_at']
-
+    queryset = Notification.objects.none()  # Default empty queryset
+    
     def get_queryset(self):
-        return Notification.objects.filter(
-            recipient=self.request.user
-        ).select_related('sender', 'post', 'comment')
+        if getattr(self, 'swagger_fake_view', False):
+            return Notification.objects.none()
+        return Notification.objects.filter(recipient=self.request.user)
 
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):
@@ -528,23 +536,37 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'unread_count': count})
 
 
+@extend_schema_view(
+    list=extend_schema(description='List saved posts'),
+    retrieve=extend_schema(description='Get a specific saved post')
+)
 class SavedPostViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SavedPostSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = FeedPagination
     ordering = ['-saved_at']
-
+    queryset = SavedPost.objects.none()  # Default empty queryset
+    
     def get_queryset(self):
-        return SavedPost.objects.filter(
-            user=self.request.user
-        ).select_related('post__author', 'post__shared_job__company')
+        if getattr(self, 'swagger_fake_view', False):
+            return SavedPost.objects.none()
+        return SavedPost.objects.filter(user=self.request.user).select_related('post', 'post__author')
 
 
+@extend_schema_view(
+    list=extend_schema(description='List feed algorithms'),
+    create=extend_schema(description='Create a feed algorithm'),
+    update=extend_schema(description='Update a feed algorithm'),
+    destroy=extend_schema(description='Delete a feed algorithm')
+)
 class FeedAlgorithmViewSet(viewsets.ModelViewSet):
     serializer_class = FeedAlgorithmSerializer
     permission_classes = [IsAuthenticated]
-
+    queryset = FeedAlgorithm.objects.none()  # Default empty queryset
+    
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return FeedAlgorithm.objects.none()
         return FeedAlgorithm.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):

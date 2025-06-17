@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema_field
+from typing import List, Dict, Optional
 from .models import (
     Post, Comment, PostLike, CommentLike, PostShare, 
     Hashtag, SavedPost, Notification, PostReport, FeedAlgorithm
@@ -52,29 +54,37 @@ class CommentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['likes_count', 'replies_count', 'created_at', 'updated_at']
     
-    def get_replies(self, obj):
+    @extend_schema_field(List[Dict])
+    def get_replies(self, obj) -> List[Dict]:
         if obj.replies.exists():
             # Only return first level of replies to avoid deep nesting
             return CommentSerializer(obj.replies.all()[:5], many=True, context=self.context).data
         return []
     
-    def get_user_has_liked(self, obj):
+    @extend_schema_field(bool)
+    def get_user_has_liked(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
         return False
     
-    def get_can_edit(self, obj):
+    @extend_schema_field(bool)
+    def get_can_edit(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.author == request.user
         return False
     
-    def get_can_delete(self, obj):
+    @extend_schema_field(bool)
+    def get_can_delete(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.author == request.user or request.user.is_staff
         return False
+
+    @extend_schema_field(bool)
+    def is_reply(self, obj) -> bool:
+        return obj.parent is not None
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -148,60 +158,59 @@ class PostSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
     
-    def get_user_has_liked(self, obj):
+    @extend_schema_field(bool)
+    def get_user_has_liked(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
         return False
     
-    def get_can_edit(self, obj):
+    @extend_schema_field(bool)
+    def get_can_edit(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.author == request.user
         return False
     
-    def get_can_delete(self, obj):
+    @extend_schema_field(bool)
+    def get_can_delete(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.author == request.user or request.user.is_staff
         return False
     
-    def get_user_has_shared(self, obj):
+    @extend_schema_field(bool)
+    def get_user_has_shared(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.shares.filter(user=request.user).exists()
         return False
     
-    def get_user_has_saved(self, obj):
+    @extend_schema_field(bool)
+    def get_user_has_saved(self, obj) -> bool:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.saved_by.filter(user=request.user).exists()
         return False
     
-    def get_user_reaction_type(self, obj):
+    @extend_schema_field(str)
+    def get_user_reaction_type(self, obj) -> Optional[str]:
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             like = obj.likes.filter(user=request.user).first()
             return like.reaction_type if like else None
         return None
     
-    def get_can_edit(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return obj.author == request.user
-        return False
-    
-    def get_can_delete(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return obj.author == request.user or request.user.is_staff
-        return False
-    
-    def get_time_since_posted(self, obj):
+    @extend_schema_field(str)
+    def get_time_since_posted(self, obj) -> str:
         now = timezone.now()
         diff = now - obj.created_at
         
-        if diff.days > 0:
+        if diff.days > 365:
+            return f"{diff.days // 365}y"
+        elif diff.days > 30:
+            return f"{diff.days // 30}mo"
+        elif diff.days > 0:
             return f"{diff.days}d"
         elif diff.seconds > 3600:
             return f"{diff.seconds // 3600}h"
@@ -210,14 +219,18 @@ class PostSerializer(serializers.ModelSerializer):
         else:
             return "now"
     
-    def get_top_comments(self, obj):
-        # Return top 3 comments by likes
+    @extend_schema_field(List[Dict])
+    def get_top_comments(self, obj) -> List[Dict]:
         top_comments = obj.comments.filter(parent=None).order_by('-likes_count')[:3]
         return CommentSerializer(top_comments, many=True, context=self.context).data
     
-    def get_engagement_score(self, obj):
-        # Simple engagement score calculation
-        return obj.likes_count * 1 + obj.comments_count * 2 + obj.shares_count * 3
+    @extend_schema_field(float)
+    def get_engagement_score(self, obj) -> float:
+        return float(obj.engagement_score)
+
+    @extend_schema_field(float)
+    def engagement_rate(self, obj) -> float:
+        return float(obj.engagement_rate)
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
@@ -378,7 +391,8 @@ class NotificationSerializer(serializers.ModelSerializer):
             'is_read', 'created_at', 'action_url', 'post', 'comment'
         ]
     
-    def get_post(self, obj):
+    @extend_schema_field(Dict)
+    def get_post(self, obj) -> Optional[Dict]:
         if obj.post:
             return {
                 'id': obj.post.id,
@@ -387,7 +401,8 @@ class NotificationSerializer(serializers.ModelSerializer):
             }
         return None
     
-    def get_comment(self, obj):
+    @extend_schema_field(Dict)
+    def get_comment(self, obj) -> Optional[Dict]:
         if obj.comment:
             return {
                 'id': obj.comment.id,
