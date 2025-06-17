@@ -48,7 +48,7 @@ const getAPIBaseURL = (): string => {
   }
   
   // Fallback to hardcoded URL for development
-  const fallbackUrl = 'http://3.65.227.81:8000/api';
+  const fallbackUrl = 'byn-build-your-network-platform.railway.internal';
   console.log('🌐 Using fallback API URL:', fallbackUrl);
   return fallbackUrl;
 };

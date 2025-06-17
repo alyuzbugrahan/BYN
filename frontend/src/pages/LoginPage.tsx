@@ -206,7 +206,7 @@ const LoginPage: React.FC = () => {
             
             <button
               onClick={() => {
-                const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://3.65.227.81:8000';
+                const apiUrl = process.env.REACT_APP_API_BASE_URL || 'byn-build-your-network-platform.railway.internal';
                 console.log('📍 Current API Base URL:', `${apiUrl}/api`);
                 console.log('🔑 Stored Access Token:', localStorage.getItem('accessToken'));
                 console.log('🔄 Stored Refresh Token:', localStorage.getItem('refreshToken'));
