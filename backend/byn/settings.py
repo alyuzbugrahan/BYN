@@ -257,15 +257,11 @@ SIMPLE_JWT = {
 
 # CORS Settings - Production ready with Railway + Vercel support
 CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all origins for debugging
+CORS_ALLOWED_ORIGINS = []  # Empty when CORS_ALLOW_ALL_ORIGINS is True
 
-# Production CORS origins from environment
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://byn-eight.vercel.app",  # Update with your Vercel URL
-    "https://railway.app",
-    "https://byn-build-your-network-platform.railway.app",
-]
+# Debug CORS settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_PREFLIGHT_MAX_AGE = 86400
 
 # Add custom CORS origins from environment
 if config('CORS_ALLOWED_ORIGINS', default=''):
@@ -295,8 +291,6 @@ CORS_ALLOW_METHODS = [
     'PUT',
     'HEAD',
 ]
-
-CORS_ALLOW_CREDENTIALS = True
 
 # Wildcard patterns for maximum flexibility
 CORS_ALLOWED_ORIGIN_REGEXES = [

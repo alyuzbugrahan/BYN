@@ -202,7 +202,7 @@ const LoginPage: React.FC = () => {
               onClick={async () => {
                 console.log('🔍 Testing API connection...');
                 try {
-                  const apiUrl = process.env.REACT_APP_API_BASE_URL || 'byn-build-your-network-platform.railway.internal';
+                  const apiUrl = process.env.REACT_APP_API_BASE_URL || 'https://byn.up.railway.app';
                   const response = await fetch(`${apiUrl}/api/auth/login/`, {
                     method: 'POST',
                     headers: {
@@ -238,7 +238,7 @@ const LoginPage: React.FC = () => {
             
             <button
               onClick={() => {
-                const apiUrl = process.env.REACT_APP_API_BASE_URL || 'byn-build-your-network-platform.railway.internal';
+                const apiUrl = process.env.REACT_APP_API_BASE_URL || 'https://byn.up.railway.app';
                 console.log('📍 Current API Base URL:', `${apiUrl}/api`);
                 console.log('🔑 Stored Access Token:', localStorage.getItem('accessToken'));
                 console.log('🔄 Stored Refresh Token:', localStorage.getItem('refreshToken'));
